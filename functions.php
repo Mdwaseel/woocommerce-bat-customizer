@@ -817,7 +817,7 @@ echo '</div>';
             $options = get_post_meta($product_id, '_' . $key, true);
     if (empty($options) || !is_array($options)) continue;
 
-    echo '<div class="customizer-section" data-group="' . esc_attr($key) . '" style="padding:20px; border-radius:8px; ' . ($is_enabled ? '' : 'display:none;') . '">';
+    echo '<div class="customizer-section" data-group="' . esc_attr($key) . '" style="margin-bottom:15px; padding:20px; border-radius:8px; ' . ($is_enabled ? '' : 'display:none;') . '">';
     echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:15px; color:#333;">' . esc_html($title) . '</h3>';
     echo '<div class="options" style="display:flex; flex-wrap:wrap; gap:15px;">';
 
@@ -850,7 +850,7 @@ echo '</div>';
         $laser_max_chars = get_post_meta($product_id, '_laser_engraving_max_chars', true) ?: '8';
 
         if ($enable_laser === 'yes' && $laser_image) {
-            echo '<div class="engraving-section laser-engraving-section" style="margin-bottom:0px; padding:25px; border-radius:8px; ' . ($is_enabled ? '' : 'display:none;') . '">';
+            echo '<div class="engraving-section laser-engraving-section" style="margin-top:20px; margin-bottom:0; padding:20px; border-radius:8px; background:#f9f9f9; ' . ($is_enabled ? '' : 'display:none;') . '">';
             echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:20px; color:#333;">Laser Engraving</h3>';
             
             echo '<div class="laser-preview-wrapper" style="margin-bottom:20px;">';
@@ -882,7 +882,7 @@ echo '</div>';
         $cover_max_chars = get_post_meta($product_id, '_cover_engraving_max_chars', true) ?: '8';
 
         if ($enable_cover === 'yes' && $cover_image) {
-            echo '<div class="engraving-section cover-engraving-section" style="margin-bottom:0px; padding:25px; border-radius:8px; ' . ($is_enabled ? '' : 'display:none;') . '">';
+            echo '<div class="engraving-section cover-engraving-section" style="margin-top:20px; margin-bottom:0; padding:20px; border-radius:8px; background:#f9f9f9; ' . ($is_enabled ? '' : 'display:none;') . '">';
             echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:20px; color:#333;"> Customised Premium Bat Cover</h3>';
             
             echo '<div class="cover-preview-wrapper" style="margin-bottom:20px;">';
@@ -1342,8 +1342,13 @@ function bat_customizer_css() {
     accent-color: #0066ff;
 }
         .customizer-section {
-            margin-bottom: 30px;
-        }
+    margin-bottom: 15px;
+    background: #fafafa;
+    border: 1px solid #e5e5e5;
+}
+.engraving-section {
+    border: 1px solid #e5e5e5;
+}
         .customizer-section h3 {
             font-size: 18px;
             margin-bottom: 10px;
