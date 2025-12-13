@@ -1340,9 +1340,16 @@ function bat_customizer_css() {
 #deep-customisation {
     accent-color: #0066ff;
 }
-        .customizer-section {
-    margin-bottom: 15px;
+ .customizer-section {
+    margin-bottom: 10px;
+}
 
+.customizer-section:has(.engraving-section) {
+    margin-bottom: 0;
+}
+
+.engraving-section {
+    margin-bottom: 10px !important;
 }
 
         .customizer-section h3 {
