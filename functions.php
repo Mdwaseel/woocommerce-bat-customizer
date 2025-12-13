@@ -799,18 +799,20 @@ function render_bat_customizer($force = false) {
         'toe_guard' => 'Toe Guard',
         'extra_grips' => 'Extra Grips',
     );
-    $deep_custom_enabled = get_post_meta($product_id, '_deep_customisation', true);
+$deep_custom_enabled = get_post_meta($product_id, '_deep_customisation', true);
 $is_enabled = ($deep_custom_enabled === 'yes');
 
-    echo '<h2 style="text-align:center; font-size:28px; margin:30px 0 20px; color:#1a1a1a;">Customize Your Bat</h2>';
-    echo '<div id="bat-customizer">';
-echo '<div class="deep-customisation-toggle" style="margin-bottom:20px;">';
-echo '<label style="display:flex; align-items:center; gap:10px; cursor:pointer;">';
-echo '<input type="checkbox" id="deep-customisation" name="deep_customisation" value="yes" ' . checked($is_enabled, true, false) . '>';
-echo '<span style="font-weight:600;">Enable Deep Customization</span>';
-echo '</label>';
-echo '</div>';
+echo '<h2 style="text-align:center; font-size:28px; margin:30px 0 20px; color:#1a1a1a;">Customize Your Bat</h2>';
+echo '<div id="bat-customizer">';
 
+echo '<div class="deep-customisation-toggle" style="margin-bottom:20px;">';
+echo '<h3 style="font-size:16px; font-weight:600; margin-bottom:10px;">Want Deep Customisation?</h3>';
+echo '<div class="toggle-buttons">';
+echo '<button type="button" class="toggle-btn yes-btn ' . ($is_enabled ? 'active' : '') . '" data-value="yes" style="padding:8px 20px; background:' . ($is_enabled ? '#0066ff' : '#e0e0e0') . '; color:' . ($is_enabled ? 'white' : '#666') . '; border:none; border-radius:4px 0 0 4px; cursor:pointer; font-weight:600;">Yes</button>';
+echo '<button type="button" class="toggle-btn no-btn ' . (!$is_enabled ? 'active' : '') . '" data-value="no" style="padding:8px 20px; background:' . (!$is_enabled ? '#0066ff' : '#e0e0e0') . '; color:' . (!$is_enabled ? 'white' : '#666') . '; border:none; border-radius:0 4px 4px 0; cursor:pointer; font-weight:600;">No</button>';
+echo '</div>';
+echo '<input type="hidden" id="deep-customisation" value="' . ($is_enabled ? 'yes' : 'no') . '">';
+echo '</div>';
 
 
         foreach ($sections as $key => $title) {
