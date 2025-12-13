@@ -566,7 +566,7 @@ function add_display_sections_fields() {
     // LASER ENGRAVING SECTION
     // ============================================
     echo '<hr style="margin: 30px 0; border: none; border-top: 2px solid #e1e1e1;">';
-    echo '<h2 style="margin-bottom: 20px;">⚡ Laser Engraving Options</h2>';
+    echo '<h2 style="margin-bottom: 20px;">Laser Engraving Options</h2>';
     
     woocommerce_wp_checkbox(array(
         'id' => '_enable_laser_engraving',
@@ -608,7 +608,7 @@ function add_display_sections_fields() {
     // BAT COVER ENGRAVING SECTION
     // ============================================
     echo '<hr style="margin: 30px 0; border: none; border-top: 2px solid #e1e1e1;">';
-    echo '<h2 style="margin-bottom: 20px;">🎯 Bat Cover Customization</h2>';
+    echo '<h2 style="margin-bottom: 20px;">Bat Cover Customization</h2>';
     
     woocommerce_wp_checkbox(array(
         'id' => '_enable_cover_engraving',
@@ -804,126 +804,113 @@ $is_enabled = ($deep_custom_enabled === 'yes');
 
     echo '<h2 style="text-align:center; font-size:28px; margin:30px 0 20px; color:#1a1a1a;">Customize Your Bat</h2>';
     echo '<div id="bat-customizer">';
-
-// ============================================
-// LASER ENGRAVING SECTION
-// ============================================
-$enable_laser = get_post_meta($product_id, '_enable_laser_engraving', true);
-$laser_image = get_post_meta($product_id, '_laser_engraving_image', true);
-$laser_price = get_post_meta($product_id, '_laser_engraving_price', true) ?: '5.49';
-$laser_max_chars = get_post_meta($product_id, '_laser_engraving_max_chars', true) ?: '8';
-
-if ($enable_laser === 'yes' && $laser_image) {
-    // Line 658 - Define BEFORE using
+echo '<div class="deep-customisation-toggle" style="margin-bottom:20px;">';
+echo '<label style="display:flex; align-items:center; gap:10px; cursor:pointer;">';
+echo '<input type="checkbox" id="deep-customisation" name="deep_customisation" value="yes" ' . checked($is_enabled, true, false) . '>';
+echo '<span style="font-weight:600;">Enable Deep Customization</span>';
+echo '</label>';
+echo '</div>';
 
 
-// Then use in lines 672 and 710
-echo '<div class="engraving-section laser-engraving-section" style="margin-bottom:30px; padding:25px; border-radius:8px; ' . ($is_enabled ? '' : 'display:none;') . '">';
-    echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:20px; color:#333;">⚡ Laser Engraving</h3>';
-    
-    echo '<div class="laser-preview-wrapper" style="margin-bottom:20px;">';
-    echo '<div style="font-size:13px; color:#666; margin-bottom:10px; font-weight:600;">Preview</div>';
-    echo '<div style="position:relative; display:inline-block; text-align:left;">';
-    echo '<img src="' . esc_url(wp_get_attachment_url($laser_image)) . '" style="width:150px; height:300px; object-fit:contain;" id="laser-bat-image">';
-    echo '<div id="laser-text-overlay" style="position:absolute; top:47%; left:57%; transform:translate(-50%,-50%) rotate(-90deg); font-size:13px; font-weight:bold; font-style:italic; color:#99633d; text-transform:uppercase; white-space:nowrap; pointer-events:none; text-shadow:0 1px 2px rgba(0,0,0,0.1);"></div>';
+
+        foreach ($sections as $key => $title) {
+            $options = get_post_meta($product_id, '_' . $key, true);
+    if (empty($options) || !is_array($options)) continue;
+
+    echo '<div class="customizer-section" data-group="' . esc_attr($key) . '" style="margin-bottom:30px; padding:20px; border-radius:8px; ' . ($is_enabled ? '' : 'display:none;') . '">';
+    echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:15px; color:#333;">' . esc_html($title) . '</h3>';
+    echo '<div class="options" style="display:flex; flex-wrap:wrap; gap:15px;">';
+
+    foreach ($options as $index => $option) {
+        if (empty($option['label'])) continue;
+
+        if (!empty($option['image'])) {
+            echo '<div class="image-option" data-index="' . $index . '" data-price="' . floatval($option['price'] ?? 0) . '">';
+            echo '<img src="' . esc_url(wp_get_attachment_url($option['image'])) . '" alt="' . esc_attr($option['label']) . '">';
+            echo '<span class="label">' . esc_html($option['label']) . '</span>';
+            if (!empty($option['price'])) echo '<span class="price">' . wc_price($option['price']) . '</span>';
+            echo '</div>';
+        } else {
+            echo '<div class="text-option" data-index="' . $index . '" data-price="' . floatval($option['price'] ?? 0) . '">';
+            echo esc_html($option['label']);
+            if (!empty($option['price'])) echo '<span class="price">' . wc_price($option['price']) . '</span>';
+            echo '</div>';
+        }
+    }
+
     echo '</div>';
-    echo '</div>';
-    
-    echo '<div class="laser-input-section">';
-    echo '<label style="display:block; margin-bottom:8px; font-weight:600; color:#333;">Laser Engraving <span style="color:#0066ff; font-size:13px;">(+' . wc_price($laser_price) . ')</span></label>';
-    echo '<input type="text" id="laser-engraving-input" name="laser_engraving_text" placeholder="Type here..." maxlength="' . esc_attr($laser_max_chars) . '" style="width:100%; padding:12px 15px; border:2px solid #ddd; border-radius:6px; font-size:15px; text-transform:uppercase; letter-spacing:1px;" data-price="' . esc_attr($laser_price) . '">';
-    echo '<div style="display:flex; justify-content:space-between; margin-top:8px;">';
-    echo '<div style="font-size:12px; color:#FF9800; font-style:italic;">Laser engraving will take 1 day extra</div>';
-    echo '<div id="laser-char-counter" style="font-size:12px; color:#666;">0 / ' . $laser_max_chars . '</div>';
-    echo '</div>';
-    echo '</div>';
-    
-    echo '</div>';
-}
+    echo '<button type="button" class="clear-section-btn" data-group="' . esc_attr($key) . '" style="display:none; margin-top:10px; padding:6px 15px; background:#f44336; color:white; border:none; border-radius:4px; cursor:pointer; font-size:13px; transition:all 0.3s ease;">Clear Selection</button>';
+    if ($key === 'toe_shape') {
+        // ============================================
+        // LASER ENGRAVING SECTION
+        // ============================================
+        $enable_laser = get_post_meta($product_id, '_enable_laser_engraving', true);
+        $laser_image = get_post_meta($product_id, '_laser_engraving_image', true);
+        $laser_price = get_post_meta($product_id, '_laser_engraving_price', true) ?: '5.49';
+        $laser_max_chars = get_post_meta($product_id, '_laser_engraving_max_chars', true) ?: '8';
 
-// ============================================
-// BAT COVER ENGRAVING SECTION
-// ============================================
-$enable_cover = get_post_meta($product_id, '_enable_cover_engraving', true);
-$cover_image = get_post_meta($product_id, '_cover_engraving_image', true);
-$cover_price = get_post_meta($product_id, '_cover_engraving_price', true) ?: '8.05';
-$cover_max_chars = get_post_meta($product_id, '_cover_engraving_max_chars', true) ?: '8';
-
-if ($enable_cover === 'yes' && $cover_image) {
-    echo '<div class="engraving-section cover-engraving-section" style="margin-bottom:30px; padding:25px; border-radius:8px; ' . ($is_enabled ? '' : 'display:none;') . '">';
-    echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:20px; color:#333;">Customised Premium Bat Cover</h3>';
-    
-    echo '<div class="cover-preview-wrapper" style="margin-bottom:20px;">';
-    echo '<div style="font-size:13px; color:#666; margin-bottom:10px; font-weight:600;">Preview</div>';
-    echo '<div style="position:relative; display:inline-block; padding:20px; border-radius:8px; text-align:left;">';
-    echo '<img src="' . esc_url(wp_get_attachment_url($cover_image)) . '" style="width:200px; height:300px; object-fit:contain;" id="cover-bat-image">';
-    echo '<div id="cover-text-overlay" style="position:absolute; top:45%; left:50%; transform:translateX(-50%); font-size:16px; font-weight:700; color:#666; text-transform:uppercase; letter-spacing:3px; white-space:nowrap; pointer-events:none; text-shadow:0 1px 3px rgba(0,0,0,0.3); opacity:0.9;"></div>';
-    echo '</div>';
-    echo '</div>';
-    
-    echo '<div class="cover-input-section">';
-    echo '<label style="display:block; margin-bottom:8px; font-weight:600; color:#333;">Bat Cover Customization <span style="color:#0066ff; font-size:13px;">(+' . wc_price($cover_price) . ')</span></label>';
-    echo '<input type="text" id="cover-engraving-input" name="cover_engraving_text" placeholder="Type here..." maxlength="' . esc_attr($cover_max_chars) . '" style="width:100%; padding:12px 15px; border:2px solid #ddd; border-radius:6px; font-size:15px; text-transform:uppercase; letter-spacing:2px;" data-price="' . esc_attr($cover_price) . '">';
-    echo '<div style="display:flex; justify-content:space-between; margin-top:8px;">';
-    echo '<div style="font-size:12px; color:#666; font-style:italic;">💡 Add your name, team, or custom text</div>';
-    echo '<div id="cover-char-counter" style="font-size:12px; color:#666;">0 / ' . $cover_max_chars . '</div>';
-    echo '</div>';
-    echo '</div>';
-    
-    echo '</div>';
-}
-
-
-
-    echo '<div class="deep-customisation-toggle" style="margin-bottom:20px;">';
-    echo '<h3 style="font-size:16px; font-weight:600; margin-bottom:10px;">Want Deep Customisation?</h3>';
-    echo '<div class="toggle-buttons">';
-    echo '<button type="button" class="toggle-btn yes-btn ' . ($is_enabled ? 'active' : '') . '" data-value="yes" style="padding:8px 20px; background:' . ($is_enabled ? '#0066ff' : '#e0e0e0') . '; color:' . ($is_enabled ? 'white' : '#666') . '; border:none; border-radius:4px 0 0 4px; cursor:pointer; font-weight:600;">Yes</button>';
-    echo '<button type="button" class="toggle-btn no-btn ' . (!$is_enabled ? 'active' : '') . '" data-value="no" style="padding:8px 20px; background:' . (!$is_enabled ? '#0066ff' : '#e0e0e0') . '; color:' . (!$is_enabled ? 'white' : '#666') . '; border:none; border-radius:0 4px 4px 0; cursor:pointer; font-weight:600;">No</button>';
-    echo '</div>';
-    echo '<input type="hidden" id="deep-customisation" value="' . ($is_enabled ? 'yes' : 'no') . '">';
-    echo '</div>';
-
-    foreach ($sections as $key => $title) {
-        $options = get_post_meta($product_id, '_' . $key, true);
-        if (empty($options) || !is_array($options)) continue;
-        
-       // Show/hide based on deep customization setting
-        $display_style = $is_enabled ? '' : 'display:none;';
-
-        echo '<div class="customizer-section" data-group="' . esc_attr($key) . '" style="' . $display_style . '">';
-        echo '<h3 style="font-size:16px; font-weight:600; margin-bottom:15px; color:#333;">' . esc_html($title) . '</h3>';
-        echo '<div class="options">';
-
-        foreach ($options as $index => $option) {
-            $is_image_section = in_array($key, array('handle_type', 'sweet_spot', 'toe_shape'), true);
-            $class = $is_image_section ? 'image-option' : 'text-option';
-
-            echo '<div class="' . esc_attr($class) . '" data-index="' . esc_attr($index) . '" data-price="' . esc_attr($option['price'] ?? 0) . '">';
-
-            if ($is_image_section && !empty($option['image'])) {
-                echo '<img src="' . esc_url(wp_get_attachment_url($option['image'])) . '" alt="' . esc_attr($option['label'] ?? '') . '">';
-            }
-
-            echo '<span class="label">' . esc_html($option['label'] ?? '') . '</span>';
-
-            if (!empty($option['price']) && floatval($option['price']) > 0) {
-                echo '<span class="price">+' . wc_price($option['price']) . '</span>';
-            }
-
-            if (!empty($option['description'])) {
-                echo '<p class="description">' . esc_html($option['description']) . '</p>';
-            }
-
+        if ($enable_laser === 'yes' && $laser_image) {
+            echo '<div class="engraving-section laser-engraving-section" style="margin-bottom:30px; padding:25px; border-radius:8px; ' . ($is_enabled ? '' : 'display:none;') . '">';
+            echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:20px; color:#333;">⚡ Laser Engraving</h3>';
+            
+            echo '<div class="laser-preview-wrapper" style="margin-bottom:20px;">';
+            echo '<div style="font-size:13px; color:#666; margin-bottom:10px; font-weight:600;">Preview</div>';
+            echo '<div style="position:relative; display:inline-block; text-align:left;">';
+            echo '<img src="' . esc_url(wp_get_attachment_url($laser_image)) . '" style="width:150px; height:300px; object-fit:contain;" id="laser-bat-image">';
+            echo '<div id="laser-text-overlay" style="position:absolute; top:47%; left:57%; transform:translate(-50%,-50%) rotate(-90deg); font-size:13px; font-weight:bold; font-style:italic; color:#99633d; text-transform:uppercase; white-space:nowrap; pointer-events:none; text-shadow:0 1px 2px rgba(0,0,0,0.1);"></div>';
+            echo '</div>';
+            echo '</div>';
+            
+            echo '<div class="laser-input-section">';
+            echo '<label style="display:block; margin-bottom:8px; font-weight:600; color:#333;">Laser Engraving <span style="color:#0066ff; font-size:13px;">(+' . wc_price($laser_price) . ')</span></label>';
+            echo '<input type="text" id="laser-engraving-input" name="laser_engraving_text" placeholder="Type here..." maxlength="' . esc_attr($laser_max_chars) . '" style="width:100%; padding:12px 15px; border:2px solid #ddd; border-radius:6px; font-size:15px; text-transform:uppercase; letter-spacing:1px;" data-price="' . esc_attr($laser_price) . '">';
+            echo '<div style="display:flex; justify-content:space-between; margin-top:8px;">';
+            echo '<div style="font-size:12px; color:#FF9800; font-style:italic;">Laser engraving will take 1 day extra</div>';
+            echo '<div id="laser-char-counter" style="font-size:12px; color:#666;">0 / ' . $laser_max_chars . '</div>';
+            echo '</div>';
+            echo '</div>';
+            
             echo '</div>';
         }
 
-        echo '</div>';
+        // ============================================
+        // BAT COVER ENGRAVING SECTION
+        // ============================================
+        $enable_cover = get_post_meta($product_id, '_enable_cover_engraving', true);
+        $cover_image = get_post_meta($product_id, '_cover_engraving_image', true);
+        $cover_price = get_post_meta($product_id, '_cover_engraving_price', true) ?: '8.05';
+        $cover_max_chars = get_post_meta($product_id, '_cover_engraving_max_chars', true) ?: '8';
 
-         echo '<button type="button" class="clear-section-btn" data-group="' . esc_attr($key) . '" style="display:none; margin-top:10px; padding:6px 15px; background:#f44336; color:white; border:none; border-radius:4px; cursor:pointer; font-size:13px; transition:all 0.3s ease;">Clear Selection</button>';
-
-        echo '</div>';
+        if ($enable_cover === 'yes' && $cover_image) {
+            echo '<div class="engraving-section cover-engraving-section" style="margin-bottom:30px; padding:25px; border-radius:8px; ' . ($is_enabled ? '' : 'display:none;') . '">';
+            echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:20px; color:#333;">🎯 Customised Premium Bat Cover</h3>';
+            
+            echo '<div class="cover-preview-wrapper" style="margin-bottom:20px;">';
+            echo '<div style="font-size:13px; color:#666; margin-bottom:10px; font-weight:600;">Preview</div>';
+            echo '<div style="position:relative; display:inline-block; background:#f9f9f9; padding:20px; border-radius:8px; text-align:left;">';
+            echo '<img src="' . esc_url(wp_get_attachment_url($cover_image)) . '" style="width:200px; height:300px; object-fit:contain;" id="cover-bat-image">';
+            echo '<div id="cover-text-overlay" style="position:absolute; top:45%; left:50%; transform:translateX(-50%); font-size:16px; font-weight:700; color:#666; text-transform:uppercase; letter-spacing:3px; white-space:nowrap; pointer-events:none; text-shadow:0 1px 3px rgba(0,0,0,0.3); opacity:0.9;"></div>';
+            echo '</div>';
+            echo '</div>';
+            
+            echo '<div class="cover-input-section">';
+            echo '<label style="display:block; margin-bottom:8px; font-weight:600; color:#333;">Bat Cover Customization <span style="color:#0066ff; font-size:13px;">(+' . wc_price($cover_price) . ')</span></label>';
+            echo '<input type="text" id="cover-engraving-input" name="cover_engraving_text" placeholder="Type here..." maxlength="' . esc_attr($cover_max_chars) . '" style="width:100%; padding:12px 15px; border:2px solid #ddd; border-radius:6px; font-size:15px; text-transform:uppercase; letter-spacing:2px;" data-price="' . esc_attr($cover_price) . '">';
+            echo '<div style="display:flex; justify-content:space-between; margin-top:8px;">';
+            echo '<div style="font-size:12px; color:#666; font-style:italic;">💡 Add your name, team, or custom text</div>';
+            echo '<div id="cover-char-counter" style="font-size:12px; color:#666;">0 / ' . $cover_max_chars . '</div>';
+            echo '</div>';
+            echo '</div>';
+            
+            echo '</div>';
+        }
     }
+
+    echo '</div>'; // Close customizer-section
+} // Close foreach sections
+
+
+// Totals section continues here...
 
    $totals_display = $is_enabled ? '' : 'display:none;';
 echo '<div class="totals" style="background:#f9f9f9; padding:20px; border-radius:8px; margin-top:30px; ' . $totals_display . '" id="customizer-totals">';
@@ -1300,11 +1287,11 @@ function save_bat_customizer_to_order($item, $cart_item_key, $values, $order) {
         }
     }
     if (isset($values['laser_engraving'])) {
-        $item->add_meta_data('⚡ Laser Engraving', $values['laser_engraving'], true);
+        $item->add_meta_data('Laser Engraving', $values['laser_engraving'], true);
     }
     
     if (isset($values['cover_engraving'])) {
-        $item->add_meta_data('🎯 Cover Customization', $values['cover_engraving'], true);
+        $item->add_meta_data('Cover Customization', $values['cover_engraving'], true);
     }
 }
 
