@@ -698,7 +698,7 @@ function render_bat_customizer($force = false) {
 
         echo '</div>';
 
-         echo '<button type="button" class="clear-section-btn" data-group="' . esc_attr($key) . '" style="margin-top:10px; padding:6px 15px; background:#f44336; color:white; border:none; border-radius:4px; cursor:pointer; font-size:13px;">Clear Selection</button>';
+         echo '<button type="button" class="clear-section-btn" data-group="' . esc_attr($key) . '" style="display:none; margin-top:10px; padding:6px 15px; background:#f44336; color:white; border:none; border-radius:4px; cursor:pointer; font-size:13px; transition:all 0.3s ease;">Clear Selection</button>';
 
         echo '</div>';
     }
@@ -762,31 +762,41 @@ function bat_customizer_js() {
     });
 }
 
-        $('.customizer-section .options > div').on('click', function() {
+        // Allow deselecting options
+$('.customizer-section .options > div').on('click', function() {
     var $this = $(this);
     var group = $this.closest('.customizer-section').data('group');
+    var $section = $this.closest('.customizer-section');
+    var $clearBtn = $section.find('.clear-section-btn');
     
-    // Check if already selected
     if ($this.hasClass('selected')) {
-        // Deselect: remove selection and clear value
+        // Deselect
         $this.removeClass('selected');
         $('#bat_' + group).val('');
+        // Hide clear button
+        $clearBtn.fadeOut(200);
     } else {
-        // Select: remove other selections and add this one
+        // Select
         $this.siblings().removeClass('selected');
         $this.addClass('selected');
         $('#bat_' + group).val($this.data('index'));
+        // Show clear button
+        $clearBtn.fadeIn(200);
     }
     
     updateTotals();
 });
 
+// Clear section button
 $('.clear-section-btn').on('click', function() {
-        var group = $(this).data('group');
-        $('.customizer-section[data-group="' + group + '"] .selected').removeClass('selected');
-        $('#bat_' + group).val('');
-        updateTotals();
-    });
+    var $btn = $(this);
+    var group = $btn.data('group');
+    $('.customizer-section[data-group="' + group + '"] .selected').removeClass('selected');
+    $('#bat_' + group).val('');
+    // Hide the button after clearing
+    $btn.fadeOut(200);
+    updateTotals();
+});
 
 
 
@@ -827,6 +837,7 @@ $('form.cart').on('submit', function(e) {
     $('.customizer-section').hide();
     $('#customizer-totals').hide();
     $('.customizer-section .selected').removeClass('selected');
+    $('.clear-section-btn').hide();
     addonsTotal = 0;
     grandTotal = basePrice;
 
