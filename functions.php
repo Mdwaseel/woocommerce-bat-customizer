@@ -855,7 +855,7 @@ if ($enable_cover === 'yes' && $cover_image) {
     
     echo '<div class="cover-preview-wrapper" style="margin-bottom:20px;">';
     echo '<div style="font-size:13px; color:#666; margin-bottom:10px; font-weight:600;">Preview</div>';
-    echo '<div style="position:relative; display:inline-block; background:#f9f9f9; padding:20px; border-radius:8px; text-align:left;">';
+    echo '<div style="position:relative; display:inline-block; padding:20px; border-radius:8px; text-align:left;">';
     echo '<img src="' . esc_url(wp_get_attachment_url($cover_image)) . '" style="width:200px; height:300px; object-fit:contain;" id="cover-bat-image">';
     echo '<div id="cover-text-overlay" style="position:absolute; top:45%; left:50%; transform:translateX(-50%); font-size:16px; font-weight:700; color:#666; text-transform:uppercase; letter-spacing:3px; white-space:nowrap; pointer-events:none; text-shadow:0 1px 3px rgba(0,0,0,0.3); opacity:0.9;"></div>';
     echo '</div>';
