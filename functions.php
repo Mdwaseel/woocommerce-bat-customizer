@@ -818,12 +818,12 @@ if ($enable_laser === 'yes' && $laser_image) {
 
 
 // Then use in lines 672 and 710
-echo '<div class="engraving-section laser-engraving-section" style="margin-bottom:30px; padding:25px; background:#f9f9f9; border-radius:8px; ' . ($is_enabled ? '' : 'display:none;') . '">';
+echo '<div class="engraving-section laser-engraving-section" style="margin-bottom:30px; padding:25px; border-radius:8px; ' . ($is_enabled ? '' : 'display:none;') . '">';
     echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:20px; color:#333;">⚡ Laser Engraving</h3>';
     
-    echo '<div class="laser-preview-wrapper" style="text-align:center; margin-bottom:20px;">';
+    echo '<div class="laser-preview-wrapper" style="margin-bottom:20px;">';
     echo '<div style="font-size:13px; color:#666; margin-bottom:10px; font-weight:600;">Preview</div>';
-    echo '<div style="position:relative; display:inline-block;">';
+    echo '<div style="position:relative; display:inline-block; text-align:left;">';
     echo '<img src="' . esc_url(wp_get_attachment_url($laser_image)) . '" style="width:150px; height:300px; object-fit:contain;" id="laser-bat-image">';
     echo '<div id="laser-text-overlay" style="position:absolute; top:47%; left:57%; transform:translate(-50%,-50%) rotate(-90deg); font-size:13px; font-weight:bold; font-style:italic; color:#99633d; text-transform:uppercase; white-space:nowrap; pointer-events:none; text-shadow:0 1px 2px rgba(0,0,0,0.1);"></div>';
     echo '</div>';
@@ -850,12 +850,12 @@ $cover_price = get_post_meta($product_id, '_cover_engraving_price', true) ?: '8.
 $cover_max_chars = get_post_meta($product_id, '_cover_engraving_max_chars', true) ?: '8';
 
 if ($enable_cover === 'yes' && $cover_image) {
-    echo '<div class="engraving-section cover-engraving-section" style="margin-bottom:30px; padding:25px; background:#f9f9f9; border-radius:8px; ' . ($is_enabled ? '' : 'display:none;') . '">';
-    echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:20px; color:#333;">🎯 Customised Premium Bat Cover</h3>';
+    echo '<div class="engraving-section cover-engraving-section" style="margin-bottom:30px; padding:25px; border-radius:8px; ' . ($is_enabled ? '' : 'display:none;') . '">';
+    echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:20px; color:#333;">Customised Premium Bat Cover</h3>';
     
-    echo '<div class="cover-preview-wrapper" style="text-align:center; margin-bottom:20px;">';
+    echo '<div class="cover-preview-wrapper" style="margin-bottom:20px;">';
     echo '<div style="font-size:13px; color:#666; margin-bottom:10px; font-weight:600;">Preview</div>';
-    echo '<div style="position:relative; display:inline-block; background:#f9f9f9; padding:20px; border-radius:8px;">';
+    echo '<div style="position:relative; display:inline-block; background:#f9f9f9; padding:20px; border-radius:8px; text-align:left;">';
     echo '<img src="' . esc_url(wp_get_attachment_url($cover_image)) . '" style="width:200px; height:300px; object-fit:contain;" id="cover-bat-image">';
     echo '<div id="cover-text-overlay" style="position:absolute; top:45%; left:50%; transform:translateX(-50%); font-size:16px; font-weight:700; color:#666; text-transform:uppercase; letter-spacing:3px; white-space:nowrap; pointer-events:none; text-shadow:0 1px 3px rgba(0,0,0,0.3); opacity:0.9;"></div>';
     echo '</div>';
@@ -1269,11 +1269,11 @@ function display_bat_customizer_in_cart($item_name, $cart_item, $cart_item_key) 
         $item_name .= '<dt><strong>Deep Customisation:</strong></dt><dd>' . ucfirst($cart_item['deep_customisation']) . '</dd>';
         
         if (isset($cart_item['laser_engraving'])) {
-            $item_name .= '<dt>⚡ Laser Engraving:</dt><dd>' . esc_html($cart_item['laser_engraving']) . '</dd>';
+            $item_name .= '<dt> Laser Engraving:</dt><dd>' . esc_html($cart_item['laser_engraving']) . '</dd>';
         }
         
         if (isset($cart_item['cover_engraving'])) {
-            $item_name .= '<dt>🎯 Cover Customization:</dt><dd>' . esc_html($cart_item['cover_engraving']) . '</dd>';
+            $item_name .= '<dt>Cover Customization:</dt><dd>' . esc_html($cart_item['cover_engraving']) . '</dd>';
         }
 
 
