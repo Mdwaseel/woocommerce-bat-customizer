@@ -850,14 +850,14 @@ echo '</div>';
         $laser_max_chars = get_post_meta($product_id, '_laser_engraving_max_chars', true) ?: '8';
 
         if ($enable_laser === 'yes' && $laser_image) {
-            echo '<div class="engraving-section laser-engraving-section" style="margin-bottom:30px; padding:25px; border-radius:8px; ' . ($is_enabled ? '' : 'display:none;') . '">';
-            echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:20px; color:#333;">⚡ Laser Engraving</h3>';
+            echo '<div class="engraving-section laser-engraving-section" style="margin-bottom:0px; padding:25px; border-radius:8px; ' . ($is_enabled ? '' : 'display:none;') . '">';
+            echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:20px; color:#333;">Laser Engraving</h3>';
             
             echo '<div class="laser-preview-wrapper" style="margin-bottom:20px;">';
             echo '<div style="font-size:13px; color:#666; margin-bottom:10px; font-weight:600;">Preview</div>';
             echo '<div style="position:relative; display:inline-block; text-align:left;">';
             echo '<img src="' . esc_url(wp_get_attachment_url($laser_image)) . '" style="width:150px; height:300px; object-fit:contain;" id="laser-bat-image">';
-            echo '<div id="laser-text-overlay" style="position:absolute; top:47%; left:57%; transform:translate(-50%,-50%) rotate(-90deg); font-size:13px; font-weight:bold; font-style:italic; color:#99633d; text-transform:uppercase; white-space:nowrap; pointer-events:none; text-shadow:0 1px 2px rgba(0,0,0,0.1);"></div>';
+            echo '<div id="laser-text-overlay" style="position:absolute; top:45%; left:57%; transform:translate(-50%,-50%) rotate(-90deg); font-size:13px; font-weight:bold; font-style:italic; color:#99633d; text-transform:uppercase; white-space:nowrap; pointer-events:none; text-shadow:0 1px 2px rgba(0,0,0,0.1);"></div>';
             echo '</div>';
             echo '</div>';
             
@@ -882,8 +882,8 @@ echo '</div>';
         $cover_max_chars = get_post_meta($product_id, '_cover_engraving_max_chars', true) ?: '8';
 
         if ($enable_cover === 'yes' && $cover_image) {
-            echo '<div class="engraving-section cover-engraving-section" style="margin-bottom:30px; padding:25px; border-radius:8px; ' . ($is_enabled ? '' : 'display:none;') . '">';
-            echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:20px; color:#333;">🎯 Customised Premium Bat Cover</h3>';
+            echo '<div class="engraving-section cover-engraving-section" style="margin-bottom:0px; padding:25px; border-radius:8px; ' . ($is_enabled ? '' : 'display:none;') . '">';
+            echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:20px; color:#333;"> Customised Premium Bat Cover</h3>';
             
             echo '<div class="cover-preview-wrapper" style="margin-bottom:20px;">';
             echo '<div style="font-size:13px; color:#666; margin-bottom:10px; font-weight:600;">Preview</div>';
