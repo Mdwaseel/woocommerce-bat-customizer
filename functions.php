@@ -1343,12 +1343,9 @@ function bat_customizer_css() {
 }
         .customizer-section {
     margin-bottom: 15px;
-    background: #fafafa;
-    border: 1px solid #e5e5e5;
+
 }
-.engraving-section {
-    border: 1px solid #e5e5e5;
-}
+
         .customizer-section h3 {
             font-size: 18px;
             margin-bottom: 10px;
