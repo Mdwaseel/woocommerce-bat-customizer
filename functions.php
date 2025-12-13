@@ -104,7 +104,7 @@ function bat_customizer_product_data_fields() {
                 
                 <div class="repeater-items" style="padding:15px;">
                     <?php foreach ($values as $index => $value) { ?>
-                        <div class="repeater-item" style="background:#f9f9f9; border:1px solid #ddd; border-radius:6px; padding:15px; margin-bottom:15px; position:relative;">
+                        <div class="repeater-item" style="background:#f9f9f9; border:1px solid #ddd; border-radius:6px; padding:15px; margin-bottom:8px; position:relative;">
                             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px;">
                                 <?php foreach ($repeater['fields'] as $field_name => $field_type) { ?>
                                     <?php if ($field_type === 'image') { ?>
@@ -509,9 +509,9 @@ function add_display_sections_fields() {
         <h3>Grid Section (3 Images + Text)</h3>
         <div class="repeater-items">
             <?php foreach ($grid_values as $i => $item) : ?>
-                <div class="repeater-item" style="border:1px solid #ddd; padding:15px; margin-bottom:15px; background:#f9f9f9; border-radius:6px;">
+                <div class="repeater-item" style="border:1px solid #ddd; padding:15px; margin-bottom:8px; background:#f9f9f9; border-radius:6px;">
                     <?php for ($n = 1; $n <= 3; $n++) : ?>
-                        <div style="margin-bottom:15px;">
+                        <div style="margin-bottom:8px;">
                             <label><strong>Image <?php echo $n; ?></strong></label><br>
                             <div class="image-upload-wrapper" style="display:flex; align-items:center; gap:10px; margin-top:8px;">
                                 <input type="hidden" name="grid_section[<?php echo $i; ?>][image<?php echo $n; ?>]" value="<?php echo esc_attr($item['image'.$n] ?? ''); ?>" class="grid-image-id">
@@ -545,7 +545,7 @@ function add_display_sections_fields() {
         <h3>FAQs</h3>
         <div class="repeater-items">
             <?php foreach ($faqs as $i => $faq) : ?>
-                <div class="repeater-item" style="border:1px solid #ddd; padding:15px; margin-bottom:15px; background:#f9f9f9; border-radius:6px;">
+                <div class="repeater-item" style="border:1px solid #ddd; padding:15px; margin-bottom:8px; background:#f9f9f9; border-radius:6px;">
                     <p>
                         <label><strong>Question</strong></label>
                         <input type="text" name="faqs[<?php echo $i; ?>][question]" value="<?php echo esc_attr($faq['question'] ?? ''); ?>" style="width:100%;">
@@ -818,8 +818,8 @@ echo '</div>';
             $options = get_post_meta($product_id, '_' . $key, true);
     if (empty($options) || !is_array($options)) continue;
 
-    echo '<div class="customizer-section" data-group="' . esc_attr($key) . '" style="margin-bottom:15px; padding:20px; border-radius:8px; ' . ($is_enabled ? '' : 'display:none;') . '">';
-    echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:15px; color:#333;">' . esc_html($title) . '</h3>';
+    echo '<div class="customizer-section" data-group="' . esc_attr($key) . '" style="margin-bottom:6px; padding:20px; border-radius:8px; ' . ($is_enabled ? '' : 'display:none;') . '">';
+    echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:8px; color:#333;">' . esc_html($title) . '</h3>';
     echo '<div class="options" style="display:flex; flex-wrap:wrap; gap:15px;">';
 
     foreach ($options as $index => $option) {
@@ -1809,7 +1809,7 @@ function render_faqs_html_for_dynamic_tags($value, $product) {
     foreach ($value as $faq) {
         if (empty($faq['question']) && empty($faq['answer'])) continue;
         
-        echo '<details style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">';
+        echo '<details style="margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:10px;">';
         echo '<summary style="font-weight:600; cursor:pointer; color:#2271b1; padding:10px 0;">' . esc_html($faq['question']) . '</summary>';
         echo '<div style="margin-top:10px; padding-left:10px; color:#666;">' . wp_kses_post(wpautop($faq['answer'])) . '</div>';
         echo '</details>';
