@@ -331,6 +331,47 @@ $('.repeater').each(function() {
 
             frame.open();
              });
+             // Laser Engraving Image Uploader
+        $('.upload-laser-image').on('click', function(e) {
+            e.preventDefault();
+            var $button = $(this);
+            var frame = wp.media({
+                title: 'Select Laser Engraving Bat Image',
+                button: { text: 'Use this image' },
+                multiple: false
+            });
+
+            frame.on('select', function() {
+                var attachment = frame.state().get('selection').first().toJSON();
+                $('#_laser_engraving_image').val(attachment.id);
+                $('.laser-preview-image').remove();
+                $('.laser-image-placeholder').remove();
+                $button.before('<img src="' + attachment.url + '" style="width:100px; height:150px; object-fit:cover; border-radius:4px;" class="laser-preview-image">');
+            });
+
+            frame.open();
+        });
+
+        // Cover Engraving Image Uploader
+        $('.upload-cover-image').on('click', function(e) {
+            e.preventDefault();
+            var $button = $(this);
+            var frame = wp.media({
+                title: 'Select Bat Cover Image',
+                button: { text: 'Use this image' },
+                multiple: false
+            });
+
+            frame.on('select', function() {
+                var attachment = frame.state().get('selection').first().toJSON();
+                $('#_cover_engraving_image').val(attachment.id);
+                $('.cover-preview-image').remove();
+                $('.cover-image-placeholder').remove();
+                $button.before('<img src="' + attachment.url + '" style="width:100px; height:150px; object-fit:cover; border-radius:4px;" class="cover-preview-image">');
+            });
+
+            frame.open();
+        });
         });
     </script>
     <?php
@@ -375,11 +416,19 @@ function bat_sanitize_and_save_repeaters($post_id) {
 // Save custom fields
 add_action('woocommerce_process_product_meta', 'save_bat_customizer_product_data');
 function save_bat_customizer_product_data($post_id) {
+    if (!isset($_POST['woocommerce_meta_nonce']) || 
+        !wp_verify_nonce($_POST['woocommerce_meta_nonce'], 'woocommerce_save_data')) {
+        return;
+    }
+    
     // Check if this is an autosave
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
     
     // Verify user capabilities
     if (!current_user_can('edit_product', $post_id)) return;
+
+
+
     update_post_meta($post_id, '_deep_customisation', isset($_POST['_deep_customisation']) ? 'yes' : 'no');
     bat_sanitize_and_save_repeaters($post_id);
     save_display_sections($post_id);
@@ -512,11 +561,116 @@ function add_display_sections_fields() {
         <p><button type="button" class="add-repeater-item button button-primary">Add FAQ</button></p>
     </div>
     <?php
+    
+    // ============================================
+    // LASER ENGRAVING SECTION
+    // ============================================
+    echo '<hr style="margin: 30px 0; border: none; border-top: 2px solid #e1e1e1;">';
+    echo '<h2 style="margin-bottom: 20px;">⚡ Laser Engraving Options</h2>';
+    
+    woocommerce_wp_checkbox(array(
+        'id' => '_enable_laser_engraving',
+        'label' => __('Enable Laser Engraving', 'woocommerce'),
+        'description' => __('Show laser engraving option on product page', 'woocommerce'),
+    ));
+    
+    echo '<p class="form-field">';
+    echo '<label>' . __('Laser Engraving Image', 'woocommerce') . '</label>';
+    $laser_img_id = get_post_meta($post->ID, '_laser_engraving_image', true);
+    echo '<div class="laser-engraving-image-uploader" style="display:flex; align-items:center; gap:10px;">';
+    if ($laser_img_id) {
+        echo '<img src="' . wp_get_attachment_url($laser_img_id) . '" style="width:100px; height:150px; object-fit:cover; border-radius:4px;" class="laser-preview-image">';
+    } else {
+        echo '<div style="width:100px; height:150px; background:#eee; border:2px dashed #ccc; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:12px; color:#999;" class="laser-image-placeholder">No Image</div>';
+    }
+    echo '<input type="hidden" id="_laser_engraving_image" name="_laser_engraving_image" value="' . esc_attr($laser_img_id) . '">';
+    echo '<button type="button" class="button upload-laser-image">Upload Bat Image</button>';
+    echo '</div>';
+    echo '</p>';
+    
+    woocommerce_wp_text_input(array(
+        'id' => '_laser_engraving_price',
+        'label' => __('Laser Engraving Price (' . get_woocommerce_currency_symbol() . ')', 'woocommerce'),
+        'type' => 'number',
+        'custom_attributes' => array('step' => '0.01', 'min' => '0'),
+        'value' => get_post_meta($post->ID, '_laser_engraving_price', true) ?: '5.49',
+    ));
+    
+    woocommerce_wp_text_input(array(
+        'id' => '_laser_engraving_max_chars',
+        'label' => __('Max Characters', 'woocommerce'),
+        'type' => 'number',
+        'custom_attributes' => array('min' => '1', 'max' => '50'),
+        'value' => get_post_meta($post->ID, '_laser_engraving_max_chars', true) ?: '8',
+    ));
+    
+    // ============================================
+    // BAT COVER ENGRAVING SECTION
+    // ============================================
+    echo '<hr style="margin: 30px 0; border: none; border-top: 2px solid #e1e1e1;">';
+    echo '<h2 style="margin-bottom: 20px;">🎯 Bat Cover Customization</h2>';
+    
+    woocommerce_wp_checkbox(array(
+        'id' => '_enable_cover_engraving',
+        'label' => __('Enable Bat Cover Customization', 'woocommerce'),
+        'description' => __('Show bat cover option on product page', 'woocommerce'),
+    ));
+    
+    echo '<p class="form-field">';
+    echo '<label>' . __('Bat Cover Image', 'woocommerce') . '</label>';
+    $cover_img_id = get_post_meta($post->ID, '_cover_engraving_image', true);
+    echo '<div class="cover-engraving-image-uploader" style="display:flex; align-items:center; gap:10px;">';
+    if ($cover_img_id) {
+        echo '<img src="' . wp_get_attachment_url($cover_img_id) . '" style="width:100px; height:150px; object-fit:cover; border-radius:4px;" class="cover-preview-image">';
+    } else {
+        echo '<div style="width:100px; height:150px; background:#eee; border:2px dashed #ccc; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:12px; color:#999;" class="cover-image-placeholder">No Image</div>';
+    }
+    echo '<input type="hidden" id="_cover_engraving_image" name="_cover_engraving_image" value="' . esc_attr($cover_img_id) . '">';
+    echo '<button type="button" class="button upload-cover-image">Upload Cover Image</button>';
+    echo '</div>';
+    echo '</p>';
+    
+    woocommerce_wp_text_input(array(
+        'id' => '_cover_engraving_price',
+        'label' => __('Bat Cover Price (' . get_woocommerce_currency_symbol() . ')', 'woocommerce'),
+        'type' => 'number',
+        'custom_attributes' => array('step' => '0.01', 'min' => '0'),
+        'value' => get_post_meta($post->ID, '_cover_engraving_price', true) ?: '8.05',
+    ));
+    
+    woocommerce_wp_text_input(array(
+        'id' => '_cover_engraving_max_chars',
+        'label' => __('Max Characters', 'woocommerce'),
+        'type' => 'number',
+        'custom_attributes' => array('min' => '1', 'max' => '50'),
+        'value' => get_post_meta($post->ID, '_cover_engraving_max_chars', true) ?: '8',
+    ));
 }
+
 
 // Save display sections
 function save_display_sections($post_id) {
-    $fields = array('_edition_heading', '_short_edition_description', '_edition_image', '_grains', '_grade', '_grain_description', '_section_below_hero', '_bat_that_matters_section', '_bat_that_matters_image');
+   $fields = array(
+        '_edition_heading', 
+        '_short_edition_description', 
+        '_edition_image', 
+        '_grains', 
+        '_grade', 
+        '_grain_description', 
+        '_section_below_hero', 
+        '_bat_that_matters_section', 
+        '_bat_that_matters_image',
+        // Laser Engraving
+        '_enable_laser_engraving',
+        '_laser_engraving_image',
+        '_laser_engraving_price',
+        '_laser_engraving_max_chars',
+        // Cover Engraving
+        '_enable_cover_engraving',
+        '_cover_engraving_image',
+        '_cover_engraving_price',
+        '_cover_engraving_max_chars'
+    );
     foreach ($fields as $field) {
         if (isset($_POST[$field])) {
             update_post_meta($post_id, $field, sanitize_text_field($_POST[$field]));
@@ -549,9 +703,9 @@ function render_display_sections() {
     $grain_desc = get_post_meta($product_id, '_grain_description', true);
     if ($grains || $grade || $grain_desc) {
         echo '<section class="grain-section">';
-        if ($grains) echo '<p>Grains: ' . esc_html($grains) . '</p>';
-        if ($grade) echo '<p>Grade: ' . esc_html($grade) . '</p>';
-        if ($grain_desc) echo '<p>' . esc_html($grain_desc) . '</p>';
+    if ($grains) echo '<p>Grains: ' . esc_html($grains) . '</p>';
+    if ($grade) echo '<p>Grade: ' . esc_html($grade) . '</p>';
+    if ($grain_desc) echo '<p>' . wp_kses_post($grain_desc) . '</p>';
         echo '</section>';
     }
 
@@ -645,13 +799,81 @@ function render_bat_customizer($force = false) {
         'toe_guard' => 'Toe Guard',
         'extra_grips' => 'Extra Grips',
     );
+    $deep_custom_enabled = get_post_meta($product_id, '_deep_customisation', true);
+$is_enabled = ($deep_custom_enabled === 'yes');
 
     echo '<h2 style="text-align:center; font-size:28px; margin:30px 0 20px; color:#1a1a1a;">Customize Your Bat</h2>';
     echo '<div id="bat-customizer">';
 
-        // Check if deep customization is enabled
-    $deep_custom_enabled = get_post_meta($product_id, '_deep_customisation', true);
-    $is_enabled = ($deep_custom_enabled === 'yes');
+// ============================================
+// LASER ENGRAVING SECTION
+// ============================================
+$enable_laser = get_post_meta($product_id, '_enable_laser_engraving', true);
+$laser_image = get_post_meta($product_id, '_laser_engraving_image', true);
+$laser_price = get_post_meta($product_id, '_laser_engraving_price', true) ?: '5.49';
+$laser_max_chars = get_post_meta($product_id, '_laser_engraving_max_chars', true) ?: '8';
+
+if ($enable_laser === 'yes' && $laser_image) {
+    // Line 658 - Define BEFORE using
+
+
+// Then use in lines 672 and 710
+echo '<div class="engraving-section laser-engraving-section" style="margin-bottom:30px; padding:25px; background:#f9f9f9; border-radius:8px; ' . ($is_enabled ? '' : 'display:none;') . '">';
+    echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:20px; color:#333;">⚡ Laser Engraving</h3>';
+    
+    echo '<div class="laser-preview-wrapper" style="text-align:center; margin-bottom:20px;">';
+    echo '<div style="font-size:13px; color:#666; margin-bottom:10px; font-weight:600;">Preview</div>';
+    echo '<div style="position:relative; display:inline-block;">';
+    echo '<img src="' . esc_url(wp_get_attachment_url($laser_image)) . '" style="width:150px; height:300px; object-fit:contain;" id="laser-bat-image">';
+    echo '<div id="laser-text-overlay" style="position:absolute; top:47%; left:57%; transform:translate(-50%,-50%) rotate(-90deg); font-size:13px; font-weight:bold; font-style:italic; color:#99633d; text-transform:uppercase; white-space:nowrap; pointer-events:none; text-shadow:0 1px 2px rgba(0,0,0,0.1);"></div>';
+    echo '</div>';
+    echo '</div>';
+    
+    echo '<div class="laser-input-section">';
+    echo '<label style="display:block; margin-bottom:8px; font-weight:600; color:#333;">Laser Engraving <span style="color:#0066ff; font-size:13px;">(+' . wc_price($laser_price) . ')</span></label>';
+    echo '<input type="text" id="laser-engraving-input" name="laser_engraving_text" placeholder="Type here..." maxlength="' . esc_attr($laser_max_chars) . '" style="width:100%; padding:12px 15px; border:2px solid #ddd; border-radius:6px; font-size:15px; text-transform:uppercase; letter-spacing:1px;" data-price="' . esc_attr($laser_price) . '">';
+    echo '<div style="display:flex; justify-content:space-between; margin-top:8px;">';
+    echo '<div style="font-size:12px; color:#FF9800; font-style:italic;">Laser engraving will take 1 day extra</div>';
+    echo '<div id="laser-char-counter" style="font-size:12px; color:#666;">0 / ' . $laser_max_chars . '</div>';
+    echo '</div>';
+    echo '</div>';
+    
+    echo '</div>';
+}
+
+// ============================================
+// BAT COVER ENGRAVING SECTION
+// ============================================
+$enable_cover = get_post_meta($product_id, '_enable_cover_engraving', true);
+$cover_image = get_post_meta($product_id, '_cover_engraving_image', true);
+$cover_price = get_post_meta($product_id, '_cover_engraving_price', true) ?: '8.05';
+$cover_max_chars = get_post_meta($product_id, '_cover_engraving_max_chars', true) ?: '8';
+
+if ($enable_cover === 'yes' && $cover_image) {
+    echo '<div class="engraving-section cover-engraving-section" style="margin-bottom:30px; padding:25px; background:#f9f9f9; border-radius:8px; ' . ($is_enabled ? '' : 'display:none;') . '">';
+    echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:20px; color:#333;">🎯 Customised Premium Bat Cover</h3>';
+    
+    echo '<div class="cover-preview-wrapper" style="text-align:center; margin-bottom:20px;">';
+    echo '<div style="font-size:13px; color:#666; margin-bottom:10px; font-weight:600;">Preview</div>';
+    echo '<div style="position:relative; display:inline-block; background:#f9f9f9; padding:20px; border-radius:8px;">';
+    echo '<img src="' . esc_url(wp_get_attachment_url($cover_image)) . '" style="width:200px; height:300px; object-fit:contain;" id="cover-bat-image">';
+    echo '<div id="cover-text-overlay" style="position:absolute; top:45%; left:50%; transform:translateX(-50%); font-size:16px; font-weight:700; color:#666; text-transform:uppercase; letter-spacing:3px; white-space:nowrap; pointer-events:none; text-shadow:0 1px 3px rgba(0,0,0,0.3); opacity:0.9;"></div>';
+    echo '</div>';
+    echo '</div>';
+    
+    echo '<div class="cover-input-section">';
+    echo '<label style="display:block; margin-bottom:8px; font-weight:600; color:#333;">Bat Cover Customization <span style="color:#0066ff; font-size:13px;">(+' . wc_price($cover_price) . ')</span></label>';
+    echo '<input type="text" id="cover-engraving-input" name="cover_engraving_text" placeholder="Type here..." maxlength="' . esc_attr($cover_max_chars) . '" style="width:100%; padding:12px 15px; border:2px solid #ddd; border-radius:6px; font-size:15px; text-transform:uppercase; letter-spacing:2px;" data-price="' . esc_attr($cover_price) . '">';
+    echo '<div style="display:flex; justify-content:space-between; margin-top:8px;">';
+    echo '<div style="font-size:12px; color:#666; font-style:italic;">💡 Add your name, team, or custom text</div>';
+    echo '<div id="cover-char-counter" style="font-size:12px; color:#666;">0 / ' . $cover_max_chars . '</div>';
+    echo '</div>';
+    echo '</div>';
+    
+    echo '</div>';
+}
+
+
 
     echo '<div class="deep-customisation-toggle" style="margin-bottom:20px;">';
     echo '<h3 style="font-size:16px; font-weight:600; margin-bottom:10px;">Want Deep Customisation?</h3>';
@@ -737,10 +959,27 @@ function bat_customizer_js() {
         var grandTotal = basePrice;
 
         function updateTotals() {
+            
     addonsTotal = 0;
+    
+    // Add regular customizer options
     $('.customizer-section .selected').each(function() {
         addonsTotal += parseFloat($(this).data('price')) || 0;
     });
+    
+    // Add laser engraving price if text entered
+    var laserText = $('#laser-engraving-input').val();
+    if (laserText && laserText.trim() !== '') {
+        var laserPrice = parseFloat($('#laser-engraving-input').data('price')) || 0;
+        addonsTotal += laserPrice;
+    }
+    
+    // Add cover engraving price if text entered
+    var coverText = $('#cover-engraving-input').val();
+    if (coverText && coverText.trim() !== '') {
+        var coverPrice = parseFloat($('#cover-engraving-input').data('price')) || 0;
+        addonsTotal += coverPrice;
+    }
     grandTotal = basePrice + addonsTotal;
 
     // Use AJAX to format prices with WooCommerce
@@ -826,6 +1065,7 @@ $('form.cart').on('submit', function(e) {
 
     // SHOW UI
     $('.customizer-section').show();
+     $('.engraving-section').show();
     $('#customizer-totals').show();
 
   } else {
@@ -838,6 +1078,13 @@ $('form.cart').on('submit', function(e) {
     $('#customizer-totals').hide();
     $('.customizer-section .selected').removeClass('selected');
     $('.clear-section-btn').hide();
+    $('.engraving-section').hide(); // Hide engraving sections
+     $('#laser-engraving-input').val('');
+    $('#cover-engraving-input').val('');
+    $('#laser-text-overlay').text('');
+    $('#cover-text-overlay').text('');
+    $('#laser-char-counter').text('0 / ' + $('#laser-engraving-input').attr('maxlength'));
+    $('#cover-char-counter').text('0 / ' + $('#cover-engraving-input').attr('maxlength'));
     addonsTotal = 0;
     grandTotal = basePrice;
 
@@ -870,6 +1117,47 @@ if (initialState === 'no') {
     $('.customizer-section').show();
     $('#customizer-totals').show();
 }
+// Laser Engraving Live Preview
+$('#laser-engraving-input').on('input', function() {
+    var text = $(this).val().trim();
+    var length = $(this).val().length;
+    var maxChars = parseInt($(this).attr('maxlength'));
+    
+    $('#laser-text-overlay').text(text);
+    $('#laser-char-counter').text(length + ' / ' + maxChars);
+    
+    if (length >= maxChars - 2) {
+        $('#laser-char-counter').css('color', '#f44336');
+    } else {
+        $('#laser-char-counter').css('color', '#666');
+    }
+    
+    updateTotals();
+});
+
+// Cover Engraving Live Preview
+$('#cover-engraving-input').on('input', function() {
+    var text = $(this).val().trim();
+    var length = $(this).val().length;
+    var maxChars = parseInt($(this).attr('maxlength'));
+    
+    $('#cover-text-overlay').text(text);
+    $('#cover-char-counter').text(length + ' / ' + maxChars);
+    
+    if (length >= maxChars - 2) {
+        $('#cover-char-counter').css('color', '#f44336');
+    } else {
+        $('#cover-char-counter').css('color', '#999');
+    }
+    
+    // Adjust font size for cover
+    var fontSize = 16;
+    if (length > 6) fontSize = 14;
+    if (length > 8) fontSize = 12;
+    $('#cover-text-overlay').css('fontSize', fontSize + 'px');
+    
+    updateTotals();
+});
 
         $('.faqs .faq-item h3').on('click', function() {
             $(this).next('p').slideToggle(300);
@@ -907,16 +1195,34 @@ function add_bat_customizer_to_cart($cart_item_data, $product_id, $variation_id)
         }
     }
 
+    if (isset($_POST['laser_engraving_text']) && !empty($_POST['laser_engraving_text'])) {
+        $laser_text = sanitize_text_field($_POST['laser_engraving_text']);
+        $laser_price = floatval(get_post_meta($product_id, '_laser_engraving_price', true)) ?: 0;
+        
+        $cart_item_data['laser_engraving'] = $laser_text;
+        $additional_price += $laser_price;
+    }
+    
+    if (isset($_POST['cover_engraving_text']) && !empty($_POST['cover_engraving_text'])) {
+        $cover_text = sanitize_text_field($_POST['cover_engraving_text']);
+        $cover_price = floatval(get_post_meta($product_id, '_cover_engraving_price', true)) ?: 0;
+        
+        $cart_item_data['cover_engraving'] = $cover_text;
+        $additional_price += $cover_price;
+    }
+
     // Always save deep customization status
     $cart_item_data['deep_customisation'] = $deep_custom;
     
+    if (!empty($custom_data) || isset($cart_item_data['laser_engraving']) || isset($cart_item_data['cover_engraving'])) {
     if (!empty($custom_data)) {
         $cart_item_data['bat_customizer'] = $custom_data;
-        $cart_item_data['bat_additional_price'] = $additional_price;
-        $prod = wc_get_product($product_id);
-        $cart_item_data['bat_base_price'] = floatval($prod->get_price());
-        $cart_item_data['unique_key'] = md5(microtime() . rand());
     }
+    $cart_item_data['bat_additional_price'] = $additional_price;
+    $prod = wc_get_product($product_id);
+    $cart_item_data['bat_base_price'] = floatval($prod->get_price());
+    $cart_item_data['unique_key'] = md5(microtime() . rand());
+}
 
     return $cart_item_data;
 }
@@ -931,6 +1237,14 @@ function get_bat_customizer_from_session($cart_item, $values, $cart_item_key) {
         $cart_item['bat_customizer'] = $values['bat_customizer'];
         $cart_item['bat_additional_price'] = isset($values['bat_additional_price']) ? $values['bat_additional_price'] : 0;
         $cart_item['bat_base_price'] = isset($values['bat_base_price']) ? $values['bat_base_price'] : 0;
+    }
+
+    if (isset($values['laser_engraving'])) {
+        $cart_item['laser_engraving'] = $values['laser_engraving'];
+    }
+    
+    if (isset($values['cover_engraving'])) {
+        $cart_item['cover_engraving'] = $values['cover_engraving'];
     }
     return $cart_item;
 }
@@ -954,6 +1268,15 @@ function display_bat_customizer_in_cart($item_name, $cart_item, $cart_item_key) 
         $item_name .= '<dl class="bat-customizer-data">';
         $item_name .= '<dt><strong>Deep Customisation:</strong></dt><dd>' . ucfirst($cart_item['deep_customisation']) . '</dd>';
         
+        if (isset($cart_item['laser_engraving'])) {
+            $item_name .= '<dt>⚡ Laser Engraving:</dt><dd>' . esc_html($cart_item['laser_engraving']) . '</dd>';
+        }
+        
+        if (isset($cart_item['cover_engraving'])) {
+            $item_name .= '<dt>🎯 Cover Customization:</dt><dd>' . esc_html($cart_item['cover_engraving']) . '</dd>';
+        }
+
+
         if (isset($cart_item['bat_customizer']) && !empty($cart_item['bat_customizer'])) {
             foreach ($cart_item['bat_customizer'] as $key => $value) {
                 $item_name .= '<dt>' . ucwords(str_replace('_', ' ', $key)) . ':</dt><dd>' . esc_html($value) . '</dd>';
@@ -975,6 +1298,13 @@ function save_bat_customizer_to_order($item, $cart_item_key, $values, $order) {
         foreach ($values['bat_customizer'] as $key => $value) {
             $item->add_meta_data(ucwords(str_replace('_', ' ', $key)), $value, true);
         }
+    }
+    if (isset($values['laser_engraving'])) {
+        $item->add_meta_data('⚡ Laser Engraving', $values['laser_engraving'], true);
+    }
+    
+    if (isset($values['cover_engraving'])) {
+        $item->add_meta_data('🎯 Cover Customization', $values['cover_engraving'], true);
     }
 }
 
