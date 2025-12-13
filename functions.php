@@ -802,7 +802,6 @@ function render_bat_customizer($force = false) {
 $deep_custom_enabled = get_post_meta($product_id, '_deep_customisation', true);
 $is_enabled = ($deep_custom_enabled === 'yes');
 
-echo '<h2 style="text-align:center; font-size:28px; color:#1a1a1a;">Customize Your Bat</h2>';
 echo '<div id="bat-customizer">';
 
 echo '<div class="deep-customisation-toggle" style="margin-bottom:20px;">';
@@ -1334,9 +1333,7 @@ function bat_customizer_css() {
     margin-bottom: 20px;
     transition: all 0.3s ease;
 }
-.deep-customisation-toggle:hover {
-    background: #e8e8e8 !important;
-}
+
 .deep-customisation-toggle label {
     user-select: none;
 }
