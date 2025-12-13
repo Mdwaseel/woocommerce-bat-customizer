@@ -854,7 +854,7 @@ echo '</div>';
             echo '<div class="engraving-section laser-engraving-section" style="margin-top:20px; margin-bottom:0; padding:20px; border-radius:8px; background:#f9f9f9; ' . ($is_enabled ? '' : 'display:none;') . '">';
             echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:20px; color:#333;">Laser Engraving</h3>';
             
-            echo '<div class="laser-preview-wrapper" style="margin-bottom:20px;">';
+            echo '<div class="laser-preview-wrapper" style="margin-bottom:8px;">';
             echo '<div style="font-size:13px; color:#666; margin-bottom:10px; font-weight:600;">Preview</div>';
             echo '<div style="position:relative; display:inline-block; text-align:left;">';
             echo '<img src="' . esc_url(wp_get_attachment_url($laser_image)) . '" style="width:150px; height:300px; object-fit:contain;" id="laser-bat-image">';
@@ -884,9 +884,9 @@ echo '</div>';
 
         if ($enable_cover === 'yes' && $cover_image) {
             echo '<div class="engraving-section cover-engraving-section" style="margin-top:20px; margin-bottom:0; padding:20px; border-radius:8px; background:#f9f9f9; ' . ($is_enabled ? '' : 'display:none;') . '">';
-            echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:20px; color:#333;"> Customised Premium Bat Cover</h3>';
+            echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:8px; color:#333;"> Customised Premium Bat Cover</h3>';
             
-            echo '<div class="cover-preview-wrapper" style="margin-bottom:20px;">';
+            echo '<div class="cover-preview-wrapper" style="margin-bottom:8px;">';
             echo '<div style="font-size:13px; color:#666; margin-bottom:10px; font-weight:600;">Preview</div>';
             echo '<div style="position:relative; display:inline-block; background:#f9f9f9; padding:20px; border-radius:8px; text-align:left;">';
             echo '<img src="' . esc_url(wp_get_attachment_url($cover_image)) . '" style="width:200px; height:300px; object-fit:contain;" id="cover-bat-image">';
