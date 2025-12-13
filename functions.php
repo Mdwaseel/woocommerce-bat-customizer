@@ -817,7 +817,7 @@ echo '</div>';
             $options = get_post_meta($product_id, '_' . $key, true);
     if (empty($options) || !is_array($options)) continue;
 
-    echo '<div class="customizer-section" data-group="' . esc_attr($key) . '" style="margin-bottom:30px; padding:20px; border-radius:8px; ' . ($is_enabled ? '' : 'display:none;') . '">';
+    echo '<div class="customizer-section" data-group="' . esc_attr($key) . '" style="margin-bottom:10px; padding:20px; border-radius:8px; ' . ($is_enabled ? '' : 'display:none;') . '">';
     echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:15px; color:#333;">' . esc_html($title) . '</h3>';
     echo '<div class="options" style="display:flex; flex-wrap:wrap; gap:15px;">';
 
