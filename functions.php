@@ -1543,16 +1543,9 @@ if (defined('ELEMENTOR_VERSION') && class_exists('\Elementor\Widget_Base')) {
 // ELEMENTOR DYNAMIC TAGS - FIXED VERSION
 // ============================================
 
-// Helper function - MUST be outside the hook
-if (!function_exists('bat_get_current_product')) {
-    function bat_get_current_product() {
-        global $product;
-        if (!$product) {
-            $product = wc_get_product(get_the_ID());
-        }
-        return $product;
-    }
-}
+// ============================================
+// ELEMENTOR DYNAMIC TAGS - FIXED VERSION
+// ============================================
 
 // Only register if Elementor is active
 if (did_action('elementor/loaded')) {
