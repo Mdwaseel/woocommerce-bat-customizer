@@ -142,7 +142,7 @@ class Bat_Grid_Section_Text_Tag extends \Elementor\Core\DynamicTags\Tag {
     }
 }
 
-// IMAGE TAGS - WORKING VERSION
+// Edition Image Tag - FIXED
 class Bat_Edition_Image_Tag extends \Elementor\Core\DynamicTags\Data_Tag {
     public function get_name() { return 'bat-edition-image'; }
     public function get_title() { return 'Edition Image'; }
@@ -152,18 +152,26 @@ class Bat_Edition_Image_Tag extends \Elementor\Core\DynamicTags\Data_Tag {
     public function get_value(array $options = []) {
         try {
             $product = bat_get_current_product();
-            if (!$product) return '';
+            if (!$product) return [];
             
             $image_id = get_post_meta($product->get_id(), '_edition_image', true);
-            if (!$image_id || !is_numeric($image_id)) return '';
+            if (!$image_id || !is_numeric($image_id)) return [];
             
-            return wp_get_attachment_image_src($image_id, 'full');
+            $image_src = wp_get_attachment_image_src($image_id, 'full');
+            if (!$image_src) return [];
+            
+            return [
+                'id' => $image_id,
+                'url' => $image_src[0],
+            ];
         } catch (Exception $e) {
-            return '';
+            return [];
         }
     }
 }
 
+
+// Bat Matters Image Tag - FIXED
 class Bat_Matters_Image_Tag extends \Elementor\Core\DynamicTags\Data_Tag {
     public function get_name() { return 'bat-matters-image'; }
     public function get_title() { return 'Bat That Matters Image'; }
@@ -173,18 +181,24 @@ class Bat_Matters_Image_Tag extends \Elementor\Core\DynamicTags\Data_Tag {
     public function get_value(array $options = []) {
         try {
             $product = bat_get_current_product();
-            if (!$product) return '';
+            if (!$product) return [];
             
             $image_id = get_post_meta($product->get_id(), '_bat_that_matters_image', true);
-            if (!$image_id || !is_numeric($image_id)) return '';
+            if (!$image_id || !is_numeric($image_id)) return [];
             
-            return wp_get_attachment_image_src($image_id, 'full');
+            $image_src = wp_get_attachment_image_src($image_id, 'full');
+            if (!$image_src) return [];
+            
+            return [
+                'id' => $image_id,
+                'url' => $image_src[0],
+            ];
         } catch (Exception $e) {
-            return '';
+            return [];
         }
     }
 }
-
+// Grid Image 1 Tag - FIXED
 class Bat_Grid_Image_1_Tag extends \Elementor\Core\DynamicTags\Data_Tag {
     public function get_name() { return 'bat-grid-image-1'; }
     public function get_title() { return 'Grid Image 1'; }
@@ -194,23 +208,30 @@ class Bat_Grid_Image_1_Tag extends \Elementor\Core\DynamicTags\Data_Tag {
     public function get_value(array $options = []) {
         try {
             $product = bat_get_current_product();
-            if (!$product) return '';
+            if (!$product) return [];
             
             $grid = get_post_meta($product->get_id(), '_grid_section', true);
-            if (!is_array($grid) || empty($grid)) return '';
+            if (!is_array($grid) || empty($grid)) return [];
             
             foreach ($grid as $item) {
                 if (!empty($item['image1']) && is_numeric($item['image1'])) {
-                    return wp_get_attachment_image_src($item['image1'], 'full');
+                    $image_src = wp_get_attachment_image_src($item['image1'], 'full');
+                    if ($image_src) {
+                        return [
+                            'id' => $item['image1'],
+                            'url' => $image_src[0],
+                        ];
+                    }
                 }
             }
-            return '';
+            return [];
         } catch (Exception $e) {
-            return '';
+            return [];
         }
     }
 }
 
+// Grid Image 2 Tag - FIXED
 class Bat_Grid_Image_2_Tag extends \Elementor\Core\DynamicTags\Data_Tag {
     public function get_name() { return 'bat-grid-image-2'; }
     public function get_title() { return 'Grid Image 2'; }
@@ -220,23 +241,30 @@ class Bat_Grid_Image_2_Tag extends \Elementor\Core\DynamicTags\Data_Tag {
     public function get_value(array $options = []) {
         try {
             $product = bat_get_current_product();
-            if (!$product) return '';
+            if (!$product) return [];
             
             $grid = get_post_meta($product->get_id(), '_grid_section', true);
-            if (!is_array($grid) || empty($grid)) return '';
+            if (!is_array($grid) || empty($grid)) return [];
             
             foreach ($grid as $item) {
                 if (!empty($item['image2']) && is_numeric($item['image2'])) {
-                    return wp_get_attachment_image_src($item['image2'], 'full');
+                    $image_src = wp_get_attachment_image_src($item['image2'], 'full');
+                    if ($image_src) {
+                        return [
+                            'id' => $item['image2'],
+                            'url' => $image_src[0],
+                        ];
+                    }
                 }
             }
-            return '';
+            return [];
         } catch (Exception $e) {
-            return '';
+            return [];
         }
     }
 }
 
+// Grid Image 3 Tag - FIXED
 class Bat_Grid_Image_3_Tag extends \Elementor\Core\DynamicTags\Data_Tag {
     public function get_name() { return 'bat-grid-image-3'; }
     public function get_title() { return 'Grid Image 3'; }
@@ -246,19 +274,25 @@ class Bat_Grid_Image_3_Tag extends \Elementor\Core\DynamicTags\Data_Tag {
     public function get_value(array $options = []) {
         try {
             $product = bat_get_current_product();
-            if (!$product) return '';
+            if (!$product) return [];
             
             $grid = get_post_meta($product->get_id(), '_grid_section', true);
-            if (!is_array($grid) || empty($grid)) return '';
+            if (!is_array($grid) || empty($grid)) return [];
             
             foreach ($grid as $item) {
                 if (!empty($item['image3']) && is_numeric($item['image3'])) {
-                    return wp_get_attachment_image_src($item['image3'], 'full');
+                    $image_src = wp_get_attachment_image_src($item['image3'], 'full');
+                    if ($image_src) {
+                        return [
+                            'id' => $item['image3'],
+                            'url' => $image_src[0],
+                        ];
+                    }
                 }
             }
-            return '';
+            return [];
         } catch (Exception $e) {
-            return '';
+            return [];
         }
     }
 }
