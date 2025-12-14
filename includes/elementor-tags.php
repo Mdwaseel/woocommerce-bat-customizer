@@ -110,19 +110,24 @@ class Bat_Grid_Section_Text_Tag extends \Elementor\Core\DynamicTags\Tag {
     }
 }
 
-// IMAGE TAGS
+// IMAGE TAGS - FIXED FOR ELEMENTOR
 class Bat_Edition_Image_Tag extends \Elementor\Core\DynamicTags\Tag {
     public function get_name() { return 'bat-edition-image'; }
     public function get_title() { return 'Edition Image'; }
     public function get_group() { return 'bat-customizer'; }
     public function get_categories() { return [\Elementor\Modules\DynamicTags\Module::IMAGE_CATEGORY]; }
-    public function render() {
+    
+    public function get_value(array $options = []) {
         $product = bat_get_current_product();
-        if (!$product) return;
+        if (!$product) return [];
+        
         $image_id = get_post_meta($product->get_id(), '_edition_image', true);
-        if ($image_id) {
-            echo esc_url(wp_get_attachment_url($image_id));
-        }
+        if (!$image_id) return [];
+        
+        return [
+            'id' => $image_id,
+            'url' => wp_get_attachment_url($image_id),
+        ];
     }
 }
 
@@ -131,13 +136,18 @@ class Bat_Matters_Image_Tag extends \Elementor\Core\DynamicTags\Tag {
     public function get_title() { return 'Bat That Matters Image'; }
     public function get_group() { return 'bat-customizer'; }
     public function get_categories() { return [\Elementor\Modules\DynamicTags\Module::IMAGE_CATEGORY]; }
-    public function render() {
+    
+    public function get_value(array $options = []) {
         $product = bat_get_current_product();
-        if (!$product) return;
+        if (!$product) return [];
+        
         $image_id = get_post_meta($product->get_id(), '_bat_that_matters_image', true);
-        if ($image_id) {
-            echo esc_url(wp_get_attachment_url($image_id));
-        }
+        if (!$image_id) return [];
+        
+        return [
+            'id' => $image_id,
+            'url' => wp_get_attachment_url($image_id),
+        ];
     }
 }
 
@@ -146,18 +156,23 @@ class Bat_Grid_Image_1_Tag extends \Elementor\Core\DynamicTags\Tag {
     public function get_title() { return 'Grid Image 1'; }
     public function get_group() { return 'bat-customizer'; }
     public function get_categories() { return [\Elementor\Modules\DynamicTags\Module::IMAGE_CATEGORY]; }
-    public function render() {
+    
+    public function get_value(array $options = []) {
         $product = bat_get_current_product();
-        if (!$product) return;
+        if (!$product) return [];
+        
         $grid = get_post_meta($product->get_id(), '_grid_section', true);
-        if (is_array($grid) && !empty($grid)) {
-            foreach ($grid as $item) {
-                if (!empty($item['image1'])) {
-                    echo esc_url(wp_get_attachment_url($item['image1']));
-                    return;
-                }
+        if (!is_array($grid) || empty($grid)) return [];
+        
+        foreach ($grid as $item) {
+            if (!empty($item['image1'])) {
+                return [
+                    'id' => $item['image1'],
+                    'url' => wp_get_attachment_url($item['image1']),
+                ];
             }
         }
+        return [];
     }
 }
 
@@ -166,18 +181,23 @@ class Bat_Grid_Image_2_Tag extends \Elementor\Core\DynamicTags\Tag {
     public function get_title() { return 'Grid Image 2'; }
     public function get_group() { return 'bat-customizer'; }
     public function get_categories() { return [\Elementor\Modules\DynamicTags\Module::IMAGE_CATEGORY]; }
-    public function render() {
+    
+    public function get_value(array $options = []) {
         $product = bat_get_current_product();
-        if (!$product) return;
+        if (!$product) return [];
+        
         $grid = get_post_meta($product->get_id(), '_grid_section', true);
-        if (is_array($grid) && !empty($grid)) {
-            foreach ($grid as $item) {
-                if (!empty($item['image2'])) {
-                    echo esc_url(wp_get_attachment_url($item['image2']));
-                    return;
-                }
+        if (!is_array($grid) || empty($grid)) return [];
+        
+        foreach ($grid as $item) {
+            if (!empty($item['image2'])) {
+                return [
+                    'id' => $item['image2'],
+                    'url' => wp_get_attachment_url($item['image2']),
+                ];
             }
         }
+        return [];
     }
 }
 
@@ -186,18 +206,23 @@ class Bat_Grid_Image_3_Tag extends \Elementor\Core\DynamicTags\Tag {
     public function get_title() { return 'Grid Image 3'; }
     public function get_group() { return 'bat-customizer'; }
     public function get_categories() { return [\Elementor\Modules\DynamicTags\Module::IMAGE_CATEGORY]; }
-    public function render() {
+    
+    public function get_value(array $options = []) {
         $product = bat_get_current_product();
-        if (!$product) return;
+        if (!$product) return [];
+        
         $grid = get_post_meta($product->get_id(), '_grid_section', true);
-        if (is_array($grid) && !empty($grid)) {
-            foreach ($grid as $item) {
-                if (!empty($item['image3'])) {
-                    echo esc_url(wp_get_attachment_url($item['image3']));
-                    return;
-                }
+        if (!is_array($grid) || empty($grid)) return [];
+        
+        foreach ($grid as $item) {
+            if (!empty($item['image3'])) {
+                return [
+                    'id' => $item['image3'],
+                    'url' => wp_get_attachment_url($item['image3']),
+                ];
             }
         }
+        return [];
     }
 }
 
