@@ -1540,296 +1540,64 @@ if (defined('ELEMENTOR_VERSION') && class_exists('\Elementor\Widget_Base')) {
 }
 
 // ============================================
-// ELEMENTOR DYNAMIC TAGS - ALL IN ONE FILE
+// ELEMENTOR DYNAMIC TAGS - FIXED VERSION
 // ============================================
 
-// Register custom dynamic tags group and tags
-add_action('elementor/dynamic_tags/register', 'register_bat_elementor_dynamic_tags');
+// Helper function - MUST be outside the hook
+if (!function_exists('bat_get_current_product')) {
+    function bat_get_current_product() {
+        global $product;
+        if (!$product) {
+            $product = wc_get_product(get_the_ID());
+        }
+        return $product;
+    }
+}
+
+// Only register if Elementor is active
+if (did_action('elementor/loaded')) {
+    add_action('elementor/dynamic_tags/register', 'register_bat_elementor_dynamic_tags');
+}
+
 function register_bat_elementor_dynamic_tags($dynamic_tags) {
+    
+    // Check if Elementor classes exist
+    if (!class_exists('\Elementor\Core\DynamicTags\Tag')) {
+        return;
+    }
     
     // Register custom group
     \Elementor\Plugin::$instance->dynamic_tags->register_group('bat-customizer', [
         'title' => 'Bat Customizer'
     ]);
     
-    // Helper function
-    if (!function_exists('bat_get_current_product')) {
-        function bat_get_current_product() {
-            global $product;
-            if (!$product) {
-                $product = wc_get_product(get_the_ID());
-            }
-            return $product;
+    // Include tag classes
+    require_once plugin_dir_path(__FILE__) . 'includes/elementor-tags.php';
+    
+    // Register tags
+    $tag_classes = [
+        'Bat_Edition_Heading_Tag',
+        'Bat_Short_Description_Tag',
+        'Bat_Grains_Tag',
+        'Bat_Grade_Tag',
+        'Bat_Grain_Description_Tag',
+        'Bat_Section_Below_Hero_Tag',
+        'Bat_Matters_Section_Tag',
+        'Bat_Grid_Section_Text_Tag',
+        'Bat_Edition_Image_Tag',
+        'Bat_Matters_Image_Tag',
+        'Bat_Grid_Image_1_Tag',
+        'Bat_Grid_Image_2_Tag',
+        'Bat_Grid_Image_3_Tag',
+        'Bat_Grid_Section_HTML_Tag',
+        'Bat_FAQs_HTML_Tag',
+    ];
+    
+    foreach ($tag_classes as $class) {
+        if (class_exists($class)) {
+            $dynamic_tags->register(new $class());
         }
     }
-    
-    // TEXT TAGS
-    $dynamic_tags->register(new class extends \Elementor\Core\DynamicTags\Tag {
-        public function get_name() { return 'bat-edition-heading'; }
-        public function get_title() { return 'Edition Heading'; }
-        public function get_group() { return 'bat-customizer'; }
-        public function get_categories() { return [\Elementor\Modules\DynamicTags\Module::TEXT_CATEGORY]; }
-        public function render() {
-            $product = bat_get_current_product();
-            if (!$product) return;
-            echo esc_html(get_post_meta($product->get_id(), '_edition_heading', true));
-        }
-    });
-    
-    $dynamic_tags->register(new class extends \Elementor\Core\DynamicTags\Tag {
-        public function get_name() { return 'bat-short-description'; }
-        public function get_title() { return 'Short Edition Description'; }
-        public function get_group() { return 'bat-customizer'; }
-        public function get_categories() { return [\Elementor\Modules\DynamicTags\Module::TEXT_CATEGORY]; }
-        public function render() {
-            $product = bat_get_current_product();
-            if (!$product) return;
-            echo esc_html(get_post_meta($product->get_id(), '_short_edition_description', true));
-        }
-    });
-    
-    $dynamic_tags->register(new class extends \Elementor\Core\DynamicTags\Tag {
-        public function get_name() { return 'bat-grains'; }
-        public function get_title() { return 'Grains'; }
-        public function get_group() { return 'bat-customizer'; }
-        public function get_categories() { return [\Elementor\Modules\DynamicTags\Module::TEXT_CATEGORY]; }
-        public function render() {
-            $product = bat_get_current_product();
-            if (!$product) return;
-            echo esc_html(get_post_meta($product->get_id(), '_grains', true));
-        }
-    });
-    
-    $dynamic_tags->register(new class extends \Elementor\Core\DynamicTags\Tag {
-        public function get_name() { return 'bat-grade'; }
-        public function get_title() { return 'Grade'; }
-        public function get_group() { return 'bat-customizer'; }
-        public function get_categories() { return [\Elementor\Modules\DynamicTags\Module::TEXT_CATEGORY]; }
-        public function render() {
-            $product = bat_get_current_product();
-            if (!$product) return;
-            echo esc_html(get_post_meta($product->get_id(), '_grade', true));
-        }
-    });
-    
-    $dynamic_tags->register(new class extends \Elementor\Core\DynamicTags\Tag {
-        public function get_name() { return 'bat-grain-description'; }
-        public function get_title() { return 'Grain Description'; }
-        public function get_group() { return 'bat-customizer'; }
-        public function get_categories() { return [\Elementor\Modules\DynamicTags\Module::TEXT_CATEGORY]; }
-        public function render() {
-            $product = bat_get_current_product();
-            if (!$product) return;
-            echo wp_kses_post(get_post_meta($product->get_id(), '_grain_description', true));
-        }
-    });
-    
-    $dynamic_tags->register(new class extends \Elementor\Core\DynamicTags\Tag {
-        public function get_name() { return 'bat-section-below-hero'; }
-        public function get_title() { return 'Section Below Hero'; }
-        public function get_group() { return 'bat-customizer'; }
-        public function get_categories() { return [\Elementor\Modules\DynamicTags\Module::TEXT_CATEGORY]; }
-        public function render() {
-            $product = bat_get_current_product();
-            if (!$product) return;
-            echo wp_kses_post(get_post_meta($product->get_id(), '_section_below_hero', true));
-        }
-    });
-    
-    $dynamic_tags->register(new class extends \Elementor\Core\DynamicTags\Tag {
-        public function get_name() { return 'bat-matters-section'; }
-        public function get_title() { return 'Bat That Matters Section'; }
-        public function get_group() { return 'bat-customizer'; }
-        public function get_categories() { return [\Elementor\Modules\DynamicTags\Module::TEXT_CATEGORY]; }
-        public function render() {
-            $product = bat_get_current_product();
-            if (!$product) return;
-            echo wp_kses_post(get_post_meta($product->get_id(), '_bat_that_matters_section', true));
-        }
-    });
-    
-    $dynamic_tags->register(new class extends \Elementor\Core\DynamicTags\Tag {
-        public function get_name() { return 'bat-grid-section-text'; }
-        public function get_title() { return 'Grid Section Text'; }
-        public function get_group() { return 'bat-customizer'; }
-        public function get_categories() { return [\Elementor\Modules\DynamicTags\Module::TEXT_CATEGORY]; }
-        public function render() {
-            $product = bat_get_current_product();
-            if (!$product) return;
-            $grid = get_post_meta($product->get_id(), '_grid_section', true);
-            if (is_array($grid) && !empty($grid)) {
-                foreach ($grid as $item) {
-                    if (!empty($item['text'])) {
-                        echo wp_kses_post($item['text']);
-                        return;
-                    }
-                }
-            }
-        }
-    });
-    
-    // IMAGE TAGS
-    $dynamic_tags->register(new class extends \Elementor\Core\DynamicTags\Tag {
-        public function get_name() { return 'bat-edition-image'; }
-        public function get_title() { return 'Edition Image'; }
-        public function get_group() { return 'bat-customizer'; }
-        public function get_categories() { return [\Elementor\Modules\DynamicTags\Module::IMAGE_CATEGORY]; }
-        public function render() {
-            $product = bat_get_current_product();
-            if (!$product) return;
-            $image_id = get_post_meta($product->get_id(), '_edition_image', true);
-            if ($image_id) {
-                echo esc_url(wp_get_attachment_url($image_id));
-            }
-        }
-    });
-    
-    $dynamic_tags->register(new class extends \Elementor\Core\DynamicTags\Tag {
-        public function get_name() { return 'bat-matters-image'; }
-        public function get_title() { return 'Bat That Matters Image'; }
-        public function get_group() { return 'bat-customizer'; }
-        public function get_categories() { return [\Elementor\Modules\DynamicTags\Module::IMAGE_CATEGORY]; }
-        public function render() {
-            $product = bat_get_current_product();
-            if (!$product) return;
-            $image_id = get_post_meta($product->get_id(), '_bat_that_matters_image', true);
-            if ($image_id) {
-                echo esc_url(wp_get_attachment_url($image_id));
-            }
-        }
-    });
-    
-    $dynamic_tags->register(new class extends \Elementor\Core\DynamicTags\Tag {
-        public function get_name() { return 'bat-grid-image-1'; }
-        public function get_title() { return 'Grid Image 1'; }
-        public function get_group() { return 'bat-customizer'; }
-        public function get_categories() { return [\Elementor\Modules\DynamicTags\Module::IMAGE_CATEGORY]; }
-        public function render() {
-            $product = bat_get_current_product();
-            if (!$product) return;
-            $grid = get_post_meta($product->get_id(), '_grid_section', true);
-            if (is_array($grid) && !empty($grid)) {
-                foreach ($grid as $item) {
-                    if (!empty($item['image1'])) {
-                        echo esc_url(wp_get_attachment_url($item['image1']));
-                        return;
-                    }
-                }
-            }
-        }
-    });
-    
-    $dynamic_tags->register(new class extends \Elementor\Core\DynamicTags\Tag {
-        public function get_name() { return 'bat-grid-image-2'; }
-        public function get_title() { return 'Grid Image 2'; }
-        public function get_group() { return 'bat-customizer'; }
-        public function get_categories() { return [\Elementor\Modules\DynamicTags\Module::IMAGE_CATEGORY]; }
-        public function render() {
-            $product = bat_get_current_product();
-            if (!$product) return;
-            $grid = get_post_meta($product->get_id(), '_grid_section', true);
-            if (is_array($grid) && !empty($grid)) {
-                foreach ($grid as $item) {
-                    if (!empty($item['image2'])) {
-                        echo esc_url(wp_get_attachment_url($item['image2']));
-                        return;
-                    }
-                }
-            }
-        }
-    });
-    
-    $dynamic_tags->register(new class extends \Elementor\Core\DynamicTags\Tag {
-        public function get_name() { return 'bat-grid-image-3'; }
-        public function get_title() { return 'Grid Image 3'; }
-        public function get_group() { return 'bat-customizer'; }
-        public function get_categories() { return [\Elementor\Modules\DynamicTags\Module::IMAGE_CATEGORY]; }
-        public function render() {
-            $product = bat_get_current_product();
-            if (!$product) return;
-            $grid = get_post_meta($product->get_id(), '_grid_section', true);
-            if (is_array($grid) && !empty($grid)) {
-                foreach ($grid as $item) {
-                    if (!empty($item['image3'])) {
-                        echo esc_url(wp_get_attachment_url($item['image3']));
-                        return;
-                    }
-                }
-            }
-        }
-    });
-    
-    // HTML TAGS (Grid Section & FAQs)
-    $dynamic_tags->register(new class extends \Elementor\Core\DynamicTags\Tag {
-        public function get_name() { return 'bat-grid-section-html'; }
-        public function get_title() { return 'Grid Section (Full HTML)'; }
-        public function get_group() { return 'bat-customizer'; }
-        public function get_categories() { return [\Elementor\Modules\DynamicTags\Module::TEXT_CATEGORY]; }
-        public function render() {
-            $product = bat_get_current_product();
-            if (!$product) return;
-            $grid = get_post_meta($product->get_id(), '_grid_section', true);
-            
-            if (!is_array($grid) || empty($grid)) return;
-
-            echo '<div class="bat-grid-section" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:20px;">';
-            
-            foreach ($grid as $item) {
-                if (empty($item['image1']) && empty($item['image2']) && empty($item['image3']) && empty($item['text'])) {
-                    continue;
-                }
-
-                echo '<div class="bat-grid-item" style="background:#f9f9f9; padding:20px; border-radius:8px;">';
-                
-                if (!empty($item['image1'])) {
-                    echo wp_get_attachment_image($item['image1'], 'medium', false, ['style' => 'width:100%; height:auto; border-radius:4px; margin-bottom:10px;']);
-                }
-                
-                if (!empty($item['image2'])) {
-                    echo wp_get_attachment_image($item['image2'], 'medium', false, ['style' => 'width:100%; height:auto; border-radius:4px; margin-bottom:10px;']);
-                }
-                
-                if (!empty($item['image3'])) {
-                    echo wp_get_attachment_image($item['image3'], 'medium', false, ['style' => 'width:100%; height:auto; border-radius:4px; margin-bottom:10px;']);
-                }
-                
-                if (!empty($item['text'])) {
-                    echo '<p style="margin:0; line-height:1.6;">' . wp_kses_post(nl2br($item['text'])) . '</p>';
-                }
-                
-                echo '</div>';
-            }
-            
-            echo '</div>';
-        }
-    });
-    
-    $dynamic_tags->register(new class extends \Elementor\Core\DynamicTags\Tag {
-        public function get_name() { return 'bat-faqs-html'; }
-        public function get_title() { return 'FAQs (Accordion HTML)'; }
-        public function get_group() { return 'bat-customizer'; }
-        public function get_categories() { return [\Elementor\Modules\DynamicTags\Module::TEXT_CATEGORY]; }
-        public function render() {
-            $product = bat_get_current_product();
-            if (!$product) return;
-            $faqs = get_post_meta($product->get_id(), '_faqs', true);
-            
-            if (empty($faqs) || !is_array($faqs)) return;
-
-            echo '<div class="bat-faqs-dynamic">';
-            
-            foreach ($faqs as $faq) {
-                if (empty($faq['question']) && empty($faq['answer'])) continue;
-                
-                echo '<details style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">';
-                echo '<summary style="font-weight:600; cursor:pointer; color:#2271b1; padding:10px 0;">' . esc_html($faq['question']) . '</summary>';
-                echo '<div style="margin-top:10px; padding-left:10px; color:#666;">' . wp_kses_post(wpautop($faq['answer'])) . '</div>';
-                echo '</details>';
-            }
-            
-            echo '</div>';
-        }
-    });
 }
 
 
