@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WooCommerce Bat Customizer
  * Description: Custom WooCommerce product customizer for bats, replicating Anglar Reserve Edition.
- * Version: 1.0
+ * Version: 2.0
  * Author: Waseel
  */
 
