@@ -110,7 +110,7 @@ class Bat_Grid_Section_Text_Tag extends \Elementor\Core\DynamicTags\Tag {
     }
 }
 
-// IMAGE TAGS - FIXED FOR ELEMENTOR
+// IMAGE TAGS - PROPERLY FIXED
 class Bat_Edition_Image_Tag extends \Elementor\Core\DynamicTags\Tag {
     public function get_name() { return 'bat-edition-image'; }
     public function get_title() { return 'Edition Image'; }
@@ -124,10 +124,19 @@ class Bat_Edition_Image_Tag extends \Elementor\Core\DynamicTags\Tag {
         $image_id = get_post_meta($product->get_id(), '_edition_image', true);
         if (!$image_id) return [];
         
-        return [
+        $image_data = [
             'id' => $image_id,
             'url' => wp_get_attachment_url($image_id),
         ];
+        
+        return $image_data;
+    }
+    
+    public function render() {
+        $value = $this->get_value();
+        if (!empty($value['url'])) {
+            echo $value['url'];
+        }
     }
 }
 
@@ -148,6 +157,13 @@ class Bat_Matters_Image_Tag extends \Elementor\Core\DynamicTags\Tag {
             'id' => $image_id,
             'url' => wp_get_attachment_url($image_id),
         ];
+    }
+    
+    public function render() {
+        $value = $this->get_value();
+        if (!empty($value['url'])) {
+            echo $value['url'];
+        }
     }
 }
 
@@ -174,6 +190,13 @@ class Bat_Grid_Image_1_Tag extends \Elementor\Core\DynamicTags\Tag {
         }
         return [];
     }
+    
+    public function render() {
+        $value = $this->get_value();
+        if (!empty($value['url'])) {
+            echo $value['url'];
+        }
+    }
 }
 
 class Bat_Grid_Image_2_Tag extends \Elementor\Core\DynamicTags\Tag {
@@ -199,6 +222,13 @@ class Bat_Grid_Image_2_Tag extends \Elementor\Core\DynamicTags\Tag {
         }
         return [];
     }
+    
+    public function render() {
+        $value = $this->get_value();
+        if (!empty($value['url'])) {
+            echo $value['url'];
+        }
+    }
 }
 
 class Bat_Grid_Image_3_Tag extends \Elementor\Core\DynamicTags\Tag {
@@ -223,6 +253,13 @@ class Bat_Grid_Image_3_Tag extends \Elementor\Core\DynamicTags\Tag {
             }
         }
         return [];
+    }
+    
+    public function render() {
+        $value = $this->get_value();
+        if (!empty($value['url'])) {
+            echo $value['url'];
+        }
     }
 }
 
