@@ -372,26 +372,6 @@ $('.repeater').each(function() {
 
             frame.open();
         });
-        // Banner Image Uploader
-$('.upload-banner-image').on('click', function(e) {
-    e.preventDefault();
-    var $button = $(this);
-    var frame = wp.media({
-        title: 'Select Last Banner Image',
-        button: { text: 'Use this image' },
-        multiple: false
-    });
-
-    frame.on('select', function() {
-        var attachment = frame.state().get('selection').first().toJSON();
-        $('#_last_banner_image').val(attachment.id);
-        $('.banner-preview-image').remove();
-        $('.banner-image-placeholder').remove();
-        $button.before('<img src="' + attachment.url + '" style="width:100px; height:100px; object-fit:cover; border-radius:4px;" class="banner-preview-image">');
-    });
-
-    frame.open();
-});
            // Banner Image Uploader
         $('.upload-banner-image').on('click', function(e) {
             e.preventDefault();
@@ -754,6 +734,7 @@ function save_display_sections($post_id) {
         '_edition_short_subtitle', 
         '_short_edition_description', 
         '_edition_image', 
+        '_grid_below_hero',  
         '_grains', 
         '_grade', 
         '_grain_description', 
@@ -879,7 +860,10 @@ add_action('woocommerce_single_product_summary', 'render_bat_customizer', 20);
 
 function render_bat_customizer($force = false) {
     static $rendered = false;
-    if (!$force && $rendered) return;
+     // Allow re-rendering in Elementor editor mode
+    $is_elementor_editor = (class_exists('\Elementor\Plugin') && \Elementor\Plugin::$instance->editor->is_edit_mode());
+    
+    if (!$force && !$is_elementor_editor && $rendered) return;
     $rendered = true;
 
     global $product;
@@ -1408,7 +1392,11 @@ function get_bat_customizer_from_session($cart_item, $values, $cart_item_key) {
 add_action('woocommerce_before_calculate_totals', 'add_bat_customizer_price_to_cart', 10, 1);
 function add_bat_customizer_price_to_cart($cart) {
     if (is_admin() && !defined('DOING_AJAX')) return;
-    if (did_action('woocommerce_before_calculate_totals') >= 2) return;
+    
+    // Use static flag to prevent multiple executions
+    static $done = false;
+    if ($done) return;
+    $done = true;
 
     foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
         // Debug log
@@ -1775,8 +1763,9 @@ function register_bat_elementor_dynamic_tags($dynamic_tags) {
         'Bat_Grid_Below_Hero_Tag',
         'Bat_Grid_Section_Text_Tag',
         'Bat_Edition_Image_Tag',
+        'Bat_Grid_Below_Hero_Image_Tag',
         'Bat_Matters_Image_Tag',
-        'Bat_Last_Banner_Image_Tag', 
+        'Bat_Last_Banner_Image_Tag_Fixed', 
         'Bat_Grid_Image_1_Tag',
         'Bat_Grid_Image_2_Tag',
         'Bat_Grid_Image_3_Tag',
