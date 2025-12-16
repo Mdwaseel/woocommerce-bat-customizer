@@ -219,21 +219,41 @@ class Bat_Edition_Short_Subtitle_Tag extends \Elementor\Core\DynamicTags\Tag {
     }
 }
 
-class Bat_Grid_Below_Hero_Tag extends \Elementor\Core\DynamicTags\Tag {
+class Bat_Grid_Below_Hero_Tag extends \Elementor\Core\DynamicTags\Data_Tag {
     public function get_name() { return 'bat-grid-below-hero'; }
-    public function get_title() { return 'Grid Below Hero'; }
+    public function get_title() { return 'Grid Below Hero Image'; }
     public function get_group() { return 'bat-customizer'; }
-    public function get_categories() { return [\Elementor\Modules\DynamicTags\Module::TEXT_CATEGORY]; }
+    public function get_categories() { return [\Elementor\Modules\DynamicTags\Module::IMAGE_CATEGORY]; }
     
-    public function render() {
+    public function get_value(array $options = []) {
         $product = bat_get_current_product();
         if (!$product) {
-            echo esc_html__('No product found', 'woocommerce');
-            return;
+            return $this->get_fallback_image();
         }
         
-        $value = get_post_meta($product->get_id(), '_grid_below_hero', true);
-        echo $value ? wp_kses_post($value) : '';
+        $image_id = get_post_meta($product->get_id(), '_grid_below_hero', true);
+        
+        if (!$image_id || !is_numeric($image_id)) {
+            return $this->get_fallback_image();
+        }
+        
+        $image_src = wp_get_attachment_image_src($image_id, 'full');
+        
+        if (!$image_src || !isset($image_src[0])) {
+            return $this->get_fallback_image();
+        }
+        
+        return [
+            'id' => $image_id,
+            'url' => $image_src[0],
+        ];
+    }
+    
+    private function get_fallback_image() {
+        return [
+            'id' => 0,
+            'url' => \Elementor\Utils::get_placeholder_image_src(),
+        ];
     }
 }
 

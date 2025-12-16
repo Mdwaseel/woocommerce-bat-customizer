@@ -392,10 +392,55 @@ $('.upload-banner-image').on('click', function(e) {
 
     frame.open();
 });
+           // Banner Image Uploader
+        $('.upload-banner-image').on('click', function(e) {
+            e.preventDefault();
+            var $button = $(this);
+            var frame = wp.media({
+                title: 'Select Last Banner Image',
+                button: { text: 'Use this image' },
+                multiple: false
+            });
+
+            frame.on('select', function() {
+                var attachment = frame.state().get('selection').first().toJSON();
+                $('#_last_banner_image').val(attachment.id);
+                $('.banner-preview-image').remove();
+                $('.banner-image-placeholder').remove();
+                $button.before('<img src="' + attachment.url + '" style="width:100px; height:100px; object-fit:cover; border-radius:4px;" class="banner-preview-image">');
+            });
+
+            frame.open();
         });
+
+        // Grid Below Hero Image Uploader (MOVED HERE)
+        $('.upload-grid-below-hero-image').on('click', function(e) {
+            e.preventDefault();
+            var $button = $(this);
+            var frame = wp.media({
+                title: 'Select Grid Below Hero Image',
+                button: { text: 'Use this image' },
+                multiple: false
+            });
+
+            frame.on('select', function() {
+                var attachment = frame.state().get('selection').first().toJSON();
+                $('#_grid_below_hero').val(attachment.id);
+                $('.grid-below-hero-preview-image').remove();
+                $('.grid-below-hero-image-placeholder').remove();
+                $button.before('<img src="' + attachment.url + '" style="width:100px; height:100px; object-fit:cover; border-radius:4px;" class="grid-below-hero-preview-image">');
+            });
+
+            frame.open();
+        });
+
+    });
     </script>
     <?php
 }
+
+// Grid Below Hero Image Uploader
+
 
 // Sanitize and save repeaters
 function bat_sanitize_and_save_repeaters($post_id) {
@@ -527,11 +572,19 @@ function add_display_sections_fields() {
     echo '</div>';
     echo '</p>';
 
-    woocommerce_wp_textarea_input(array(
-    'id' => '_grid_below_hero',
-    'label' => __('Grid Below Hero Image', 'woocommerce'),
-    'description' => __('Content to display in grid below hero', 'woocommerce'),
-));
+    echo '<p class="form-field">';
+echo '<label>' . __('Grid Below Hero Image', 'woocommerce') . '</label>';
+$grid_below_hero_img_id = get_post_meta($post->ID, '_grid_below_hero', true);
+echo '<div class="grid-below-hero-image-uploader" style="display:flex; align-items:center; gap:10px;">';
+if ($grid_below_hero_img_id) {
+    echo '<img src="' . wp_get_attachment_url($grid_below_hero_img_id) . '" style="width:100px; height:100px; object-fit:cover; border-radius:4px;" class="grid-below-hero-preview-image">';
+} else {
+    echo '<div style="width:100px; height:100px; background:#eee; border:2px dashed #ccc; border-radius:4px;" class="grid-below-hero-image-placeholder"></div>';
+}
+echo '<input type="hidden" id="_grid_below_hero" name="_grid_below_hero" value="' . esc_attr($grid_below_hero_img_id) . '">';
+echo '<button type="button" class="button upload-grid-below-hero-image">Upload Image</button>';
+echo '</div>';
+echo '</p>';
 
 echo '<p class="form-field">';
 echo '<label>' . __('Last Banner Image', 'woocommerce') . '</label>';
@@ -747,9 +800,9 @@ if ($edition_heading || $short_desc || $short_subtitle) {
     if ($edition_image) {
         echo '<section class="edition-image"><img src="' . esc_url(wp_get_attachment_url($edition_image)) . '" alt="Edition Image"></section>';
     }
-    $grid_below_hero = get_post_meta($product_id, '_grid_below_hero', true);
+   $grid_below_hero = get_post_meta($product_id, '_grid_below_hero', true);
 if ($grid_below_hero) {
-    echo '<section class="grid-below-hero">' . wp_kses_post($grid_below_hero) . '</section>';
+    echo '<section class="grid-below-hero"><img src="' . esc_url(wp_get_attachment_url($grid_below_hero)) . '" alt="Grid Below Hero" style="width:100%;"></section>';
 }
 
     $grains = get_post_meta($product_id, '_grains', true);
