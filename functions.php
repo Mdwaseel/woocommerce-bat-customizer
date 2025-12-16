@@ -1161,14 +1161,14 @@ add_filter('woocommerce_add_cart_item_data', 'add_bat_customizer_to_cart', 10, 3
 function add_bat_customizer_to_cart($cart_item_data, $product_id, $variation_id) {
     if (empty($_POST)) return $cart_item_data;
     
-    // Check if deep customization is enabled
     $deep_custom = isset($_POST['deep_customisation']) ? sanitize_text_field($_POST['deep_customisation']) : 'no';
+    $cart_item_data['deep_customisation'] = $deep_custom;
     
     $sections = array('handle_shape', 'handle_thickness', 'handle_type', 'sweet_spot', 'toe_shape', 'oiling_knocking', 'anti_scuff_sheet', 'toe_guard', 'extra_grips');
     $custom_data = array();
     $additional_price = 0;
 
-    // Only process customizations if deep customization is enabled
+    // Only process if deep customization is enabled
     if ($deep_custom === 'yes') {
         foreach ($sections as $key) {
             if (isset($_POST['bat_' . $key]) && $_POST['bat_' . $key] !== '') {
@@ -1183,6 +1183,7 @@ function add_bat_customizer_to_cart($cart_item_data, $product_id, $variation_id)
         }
     }
 
+    // Laser engraving
     if (isset($_POST['laser_engraving_text']) && !empty($_POST['laser_engraving_text'])) {
         $laser_text = sanitize_text_field($_POST['laser_engraving_text']);
         $laser_price = floatval(get_post_meta($product_id, '_laser_engraving_price', true)) ?: 0;
@@ -1191,6 +1192,7 @@ function add_bat_customizer_to_cart($cart_item_data, $product_id, $variation_id)
         $additional_price += $laser_price;
     }
     
+    // Cover engraving
     if (isset($_POST['cover_engraving_text']) && !empty($_POST['cover_engraving_text'])) {
         $cover_text = sanitize_text_field($_POST['cover_engraving_text']);
         $cover_price = floatval(get_post_meta($product_id, '_cover_engraving_price', true)) ?: 0;
@@ -1199,18 +1201,21 @@ function add_bat_customizer_to_cart($cart_item_data, $product_id, $variation_id)
         $additional_price += $cover_price;
     }
 
-    // Always save deep customization status
-    $cart_item_data['deep_customisation'] = $deep_custom;
-    
-    if (!empty($custom_data) || isset($cart_item_data['laser_engraving']) || isset($cart_item_data['cover_engraving'])) {
+    // Save customizer data
     if (!empty($custom_data)) {
         $cart_item_data['bat_customizer'] = $custom_data;
     }
-    $cart_item_data['bat_additional_price'] = $additional_price;
-    $prod = wc_get_product($product_id);
-    $cart_item_data['bat_base_price'] = floatval($prod->get_price());
-    $cart_item_data['unique_key'] = md5(microtime() . rand());
-}
+    
+    // IMPORTANT: Always save prices if there are customizations
+    if (!empty($custom_data) || isset($cart_item_data['laser_engraving']) || isset($cart_item_data['cover_engraving'])) {
+        $prod = wc_get_product($product_id);
+        $base_price = floatval($prod->get_price());
+        
+        $cart_item_data['bat_additional_price'] = $additional_price;
+        $cart_item_data['bat_base_price'] = $base_price;
+        $cart_item_data['bat_final_price'] = $base_price + $additional_price;
+        $cart_item_data['unique_key'] = md5(microtime() . rand());
+    }
 
     return $cart_item_data;
 }
@@ -1223,8 +1228,6 @@ function get_bat_customizer_from_session($cart_item, $values, $cart_item_key) {
     
     if (isset($values['bat_customizer'])) {
         $cart_item['bat_customizer'] = $values['bat_customizer'];
-        $cart_item['bat_additional_price'] = isset($values['bat_additional_price']) ? $values['bat_additional_price'] : 0;
-        $cart_item['bat_base_price'] = isset($values['bat_base_price']) ? $values['bat_base_price'] : 0;
     }
 
     if (isset($values['laser_engraving'])) {
@@ -1234,40 +1237,61 @@ function get_bat_customizer_from_session($cart_item, $values, $cart_item_key) {
     if (isset($values['cover_engraving'])) {
         $cart_item['cover_engraving'] = $values['cover_engraving'];
     }
+    
+    // IMPORTANT: Restore price data
+    if (isset($values['bat_additional_price'])) {
+        $cart_item['bat_additional_price'] = $values['bat_additional_price'];
+    }
+    
+    if (isset($values['bat_base_price'])) {
+        $cart_item['bat_base_price'] = $values['bat_base_price'];
+    }
+    
+    if (isset($values['bat_final_price'])) {
+        $cart_item['bat_final_price'] = $values['bat_final_price'];
+    }
+    
     return $cart_item;
 }
 
-add_action('woocommerce_before_calculate_totals', 'add_bat_customizer_price_to_cart', 20);
+
+add_action('woocommerce_before_calculate_totals', 'add_bat_customizer_price_to_cart', 10, 1);
 function add_bat_customizer_price_to_cart($cart) {
     if (is_admin() && !defined('DOING_AJAX')) return;
+    if (did_action('woocommerce_before_calculate_totals') >= 2) return;
 
-    foreach ($cart->get_cart() as $cart_item) {
-        if (isset($cart_item['bat_base_price'])) {
-            $base = floatval($cart_item['bat_base_price']);
-            $addons = floatval($cart_item['bat_additional_price'] ?? 0);
-            $cart_item['data']->set_price($base + $addons);
+    foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
+        // Check if we have customization data
+        if (isset($cart_item['bat_final_price']) && $cart_item['bat_final_price'] > 0) {
+            // Set the final price directly
+            $cart_item['data']->set_price($cart_item['bat_final_price']);
+        } elseif (isset($cart_item['bat_base_price']) && isset($cart_item['bat_additional_price'])) {
+            // Fallback: calculate from base + addons
+            $final_price = floatval($cart_item['bat_base_price']) + floatval($cart_item['bat_additional_price']);
+            $cart_item['data']->set_price($final_price);
         }
     }
 }
 
+
+
 add_filter('woocommerce_cart_item_name', 'display_bat_customizer_in_cart', 10, 3);
 function display_bat_customizer_in_cart($item_name, $cart_item, $cart_item_key) {
     if (isset($cart_item['deep_customisation'])) {
-        $item_name .= '<dl class="bat-customizer-data">';
-        $item_name .= '<dt><strong>Deep Customisation:</strong></dt><dd>' . ucfirst($cart_item['deep_customisation']) . '</dd>';
+        $item_name .= '<dl class="bat-customizer-data" style="margin-top:10px; font-size:0.9em;">';
+        $item_name .= '<dt><strong>Deep Customisation:</strong></dt><dd style="margin:0 0 5px 0;">' . ucfirst($cart_item['deep_customisation']) . '</dd>';
         
         if (isset($cart_item['laser_engraving'])) {
-            $item_name .= '<dt> Laser Engraving:</dt><dd>' . esc_html($cart_item['laser_engraving']) . '</dd>';
+            $item_name .= '<dt><strong>Laser Engraving:</strong></dt><dd style="margin:0 0 5px 0;">' . esc_html($cart_item['laser_engraving']) . '</dd>';
         }
         
         if (isset($cart_item['cover_engraving'])) {
-            $item_name .= '<dt>Cover Customization:</dt><dd>' . esc_html($cart_item['cover_engraving']) . '</dd>';
+            $item_name .= '<dt><strong>Cover Customization:</strong></dt><dd style="margin:0 0 5px 0;">' . esc_html($cart_item['cover_engraving']) . '</dd>';
         }
-
 
         if (isset($cart_item['bat_customizer']) && !empty($cart_item['bat_customizer'])) {
             foreach ($cart_item['bat_customizer'] as $key => $value) {
-                $item_name .= '<dt>' . ucwords(str_replace('_', ' ', $key)) . ':</dt><dd>' . esc_html($value) . '</dd>';
+                $item_name .= '<dt><strong>' . ucwords(str_replace('_', ' ', $key)) . ':</strong></dt><dd style="margin:0 0 5px 0;">' . esc_html($value) . '</dd>';
             }
         }
         
@@ -1287,12 +1311,22 @@ function save_bat_customizer_to_order($item, $cart_item_key, $values, $order) {
             $item->add_meta_data(ucwords(str_replace('_', ' ', $key)), $value, true);
         }
     }
+    
     if (isset($values['laser_engraving'])) {
         $item->add_meta_data('Laser Engraving', $values['laser_engraving'], true);
     }
     
     if (isset($values['cover_engraving'])) {
         $item->add_meta_data('Cover Customization', $values['cover_engraving'], true);
+    }
+    
+    // Save price breakdown
+    if (isset($values['bat_base_price'])) {
+        $item->add_meta_data('_bat_base_price', $values['bat_base_price'], true);
+    }
+    
+    if (isset($values['bat_additional_price'])) {
+        $item->add_meta_data('_bat_additional_price', $values['bat_additional_price'], true);
     }
 }
 
