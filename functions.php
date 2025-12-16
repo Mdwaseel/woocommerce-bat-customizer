@@ -1261,14 +1261,25 @@ function add_bat_customizer_price_to_cart($cart) {
     if (did_action('woocommerce_before_calculate_totals') >= 2) return;
 
     foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
+        // Debug log
+        error_log('BAT DEBUG - Cart Item Key: ' . $cart_item_key);
+        error_log('BAT DEBUG - Has bat_final_price: ' . (isset($cart_item['bat_final_price']) ? 'YES - ' . $cart_item['bat_final_price'] : 'NO'));
+        error_log('BAT DEBUG - Has bat_additional_price: ' . (isset($cart_item['bat_additional_price']) ? 'YES - ' . $cart_item['bat_additional_price'] : 'NO'));
+        error_log('BAT DEBUG - Has bat_base_price: ' . (isset($cart_item['bat_base_price']) ? 'YES - ' . $cart_item['bat_base_price'] : 'NO'));
+        
         // Check if we have customization data
         if (isset($cart_item['bat_final_price']) && $cart_item['bat_final_price'] > 0) {
             // Set the final price directly
-            $cart_item['data']->set_price($cart_item['bat_final_price']);
+            $new_price = floatval($cart_item['bat_final_price']);
+            error_log('BAT DEBUG - Setting price to: ' . $new_price);
+            $cart_item['data']->set_price($new_price);
         } elseif (isset($cart_item['bat_base_price']) && isset($cart_item['bat_additional_price'])) {
             // Fallback: calculate from base + addons
             $final_price = floatval($cart_item['bat_base_price']) + floatval($cart_item['bat_additional_price']);
+            error_log('BAT DEBUG - Fallback calculation: ' . $cart_item['bat_base_price'] . ' + ' . $cart_item['bat_additional_price'] . ' = ' . $final_price);
             $cart_item['data']->set_price($final_price);
+        } else {
+            error_log('BAT DEBUG - No customization pricing found for this item');
         }
     }
 }
