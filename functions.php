@@ -372,6 +372,26 @@ $('.repeater').each(function() {
 
             frame.open();
         });
+        // Banner Image Uploader
+$('.upload-banner-image').on('click', function(e) {
+    e.preventDefault();
+    var $button = $(this);
+    var frame = wp.media({
+        title: 'Select Last Banner Image',
+        button: { text: 'Use this image' },
+        multiple: false
+    });
+
+    frame.on('select', function() {
+        var attachment = frame.state().get('selection').first().toJSON();
+        $('#_last_banner_image').val(attachment.id);
+        $('.banner-preview-image').remove();
+        $('.banner-image-placeholder').remove();
+        $button.before('<img src="' + attachment.url + '" style="width:100px; height:100px; object-fit:cover; border-radius:4px;" class="banner-preview-image">');
+    });
+
+    frame.open();
+});
         });
     </script>
     <?php
@@ -443,6 +463,11 @@ function add_display_sections_fields() {
         'id' => '_edition_heading',
         'label' => __('Edition Heading', 'woocommerce'),
     ));
+    woocommerce_wp_text_input(array(
+    'id' => '_edition_short_subtitle',
+    'label' => __('Edition Short Subtitle', 'woocommerce'),
+    'description' => __('Short subtitle for edition section', 'woocommerce'),
+));
 
     woocommerce_wp_textarea_input(array(
         'id' => '_short_edition_description',
@@ -501,6 +526,27 @@ function add_display_sections_fields() {
     echo '<button type="button" class="button upload-bat-matters-image">Upload Image</button>';
     echo '</div>';
     echo '</p>';
+
+    woocommerce_wp_textarea_input(array(
+    'id' => '_grid_below_hero',
+    'label' => __('Grid Below Hero Image', 'woocommerce'),
+    'description' => __('Content to display in grid below hero', 'woocommerce'),
+));
+
+echo '<p class="form-field">';
+echo '<label>' . __('Last Banner Image', 'woocommerce') . '</label>';
+$banner_img_id = get_post_meta($post->ID, '_last_banner_image', true);
+echo '<div class="last-banner-image-uploader" style="display:flex; align-items:center; gap:10px;">';
+if ($banner_img_id) {
+    echo '<img src="' . wp_get_attachment_url($banner_img_id) . '" style="width:100px; height:100px; object-fit:cover; border-radius:4px;" class="banner-preview-image">';
+} else {
+    echo '<div style="width:100px; height:100px; background:#eee; border:2px dashed #ccc; border-radius:4px;" class="banner-image-placeholder"></div>';
+}
+echo '<input type="hidden" id="_last_banner_image" name="_last_banner_image" value="' . esc_attr($banner_img_id) . '">';
+echo '<button type="button" class="button upload-banner-image">Upload Image</button>';
+echo '</div>';
+echo '</p>';
+
     // Grid Section Repeater
     $grid_values = get_post_meta($post->ID, '_grid_section', true);
     $grid_values = is_array($grid_values) ? $grid_values : array(array());
@@ -651,7 +697,8 @@ function add_display_sections_fields() {
 // Save display sections
 function save_display_sections($post_id) {
    $fields = array(
-        '_edition_heading', 
+        '_edition_heading',
+        '_edition_short_subtitle', 
         '_short_edition_description', 
         '_edition_image', 
         '_grains', 
@@ -659,7 +706,8 @@ function save_display_sections($post_id) {
         '_grain_description', 
         '_section_below_hero', 
         '_bat_that_matters_section', 
-        '_bat_that_matters_image',
+        '_bat_that_matters_image',  
+        '_last_banner_image',
         // Laser Engraving
         '_enable_laser_engraving',
         '_laser_engraving_image',
@@ -685,18 +733,24 @@ function render_display_sections() {
     $product_id = $product->get_id();
 
     $edition_heading = get_post_meta($product_id, '_edition_heading', true);
-    $short_desc = get_post_meta($product_id, '_short_edition_description', true);
-    if ($edition_heading || $short_desc) {
-        echo '<section class="edition-section">';
-        if ($edition_heading) echo '<h2>' . esc_html($edition_heading) . '</h2>';
-        if ($short_desc) echo '<p>' . esc_html($short_desc) . '</p>';
-        echo '</section>';
-    }
+$short_desc = get_post_meta($product_id, '_short_edition_description', true);
+$short_subtitle = get_post_meta($product_id, '_edition_short_subtitle', true);
+if ($edition_heading || $short_desc || $short_subtitle) {
+    echo '<section class="edition-section">';
+    if ($edition_heading) echo '<h2>' . esc_html($edition_heading) . '</h2>';
+    if ($short_subtitle) echo '<p class="edition-subtitle">' . esc_html($short_subtitle) . '</p>';
+    if ($short_desc) echo '<p>' . esc_html($short_desc) . '</p>';
+    echo '</section>';
+}
 
     $edition_image = get_post_meta($product_id, '_edition_image', true);
     if ($edition_image) {
         echo '<section class="edition-image"><img src="' . esc_url(wp_get_attachment_url($edition_image)) . '" alt="Edition Image"></section>';
     }
+    $grid_below_hero = get_post_meta($product_id, '_grid_below_hero', true);
+if ($grid_below_hero) {
+    echo '<section class="grid-below-hero">' . wp_kses_post($grid_below_hero) . '</section>';
+}
 
     $grains = get_post_meta($product_id, '_grains', true);
     $grade = get_post_meta($product_id, '_grade', true);
@@ -1658,15 +1712,18 @@ function register_bat_elementor_dynamic_tags($dynamic_tags) {
     // Register tags
     $tag_classes = [
         'Bat_Edition_Heading_Tag',
+        'Bat_Edition_Short_Subtitle_Tag', 
         'Bat_Short_Description_Tag',
         'Bat_Grains_Tag',
         'Bat_Grade_Tag',
         'Bat_Grain_Description_Tag',
         'Bat_Section_Below_Hero_Tag',
         'Bat_Matters_Section_Tag',
+        'Bat_Grid_Below_Hero_Tag',
         'Bat_Grid_Section_Text_Tag',
         'Bat_Edition_Image_Tag',
         'Bat_Matters_Image_Tag',
+        'Bat_Last_Banner_Image_Tag', 
         'Bat_Grid_Image_1_Tag',
         'Bat_Grid_Image_2_Tag',
         'Bat_Grid_Image_3_Tag',
