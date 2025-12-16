@@ -923,7 +923,6 @@ echo '<div class="totals" style="background:#f9f9f9; padding:20px; border-radius
     foreach ($sections as $key => $title) {
         echo '<input type="hidden" name="bat_' . esc_attr($key) . '" id="bat_' . esc_attr($key) . '">';
     }
-
     echo '</div>';
 }
 
@@ -1028,16 +1027,49 @@ $('.clear-section-btn').on('click', function() {
 
 
 // Intercept Add to Cart button to include deep customization value
+// Intercept Add to Cart button - Fixed version
 $('form.cart').on('submit', function(e) {
-    // Add deep customization value to form
+    var $form = $(this);
+    
+    // Get deep customization value
     var deepCustomValue = $('#deep-customisation').val();
     
-    // Check if deep customization input already exists in the form
-    if ($(this).find('input[name="deep_customisation"]').length === 0) {
-        $(this).append('<input type="hidden" name="deep_customisation" value="' + deepCustomValue + '">');
-    } else {
-        $(this).find('input[name="deep_customisation"]').val(deepCustomValue);
+    // Remove any old inputs to prevent duplicates
+    $form.find('input[name^="bat_"]').remove();
+    $form.find('input[name="deep_customisation"]').remove();
+    $form.find('input[name="laser_engraving_text"]').remove();
+    $form.find('input[name="cover_engraving_text"]').remove();
+    
+    // Add deep customization toggle
+    $form.append('<input type="hidden" name="deep_customisation" value="' + deepCustomValue + '">');
+    
+    // Only add customizer options if deep customization is enabled
+    if (deepCustomValue === 'yes') {
+        // Add all selected customizer options
+        $('.customizer-section').each(function() {
+            var group = $(this).data('group');
+            var $selected = $(this).find('.selected');
+            if ($selected.length > 0) {
+                var index = $selected.data('index');
+                $form.append('<input type="hidden" name="bat_' + group + '" value="' + index + '">');
+            }
+        });
+        
+        // Add laser engraving if filled
+        var laserText = $('#laser-engraving-input').val();
+        if (laserText && laserText.trim() !== '') {
+            $form.append('<input type="hidden" name="laser_engraving_text" value="' + laserText.trim() + '">');
+        }
+        
+        // Add cover engraving if filled
+        var coverText = $('#cover-engraving-input').val();
+        if (coverText && coverText.trim() !== '') {
+            $form.append('<input type="hidden" name="cover_engraving_text" value="' + coverText.trim() + '">');
+        }
     }
+    
+    // Let the form submit normally
+    return true;
 });
 
         $('.toggle-btn').on('click', function() {
@@ -1207,9 +1239,20 @@ function add_bat_customizer_to_cart($cart_item_data, $product_id, $variation_id)
     }
     
     // IMPORTANT: Always save prices if there are customizations
-    if (!empty($custom_data) || isset($cart_item_data['laser_engraving']) || isset($cart_item_data['cover_engraving'])) {
+      if (!empty($custom_data) || isset($cart_item_data['laser_engraving']) || isset($cart_item_data['cover_engraving'])) {
         $prod = wc_get_product($product_id);
         $base_price = floatval($prod->get_price());
+        
+        // Debug logging
+        error_log('=== BAT CUSTOMIZER DEBUG ===');
+        error_log('Product ID: ' . $product_id);
+        error_log('Base Price: ' . $base_price);
+        error_log('Additional Price: ' . $additional_price);
+        error_log('Final Price: ' . ($base_price + $additional_price));
+        error_log('Custom Data: ' . print_r($custom_data, true));
+        error_log('Laser Text: ' . (isset($cart_item_data['laser_engraving']) ? $cart_item_data['laser_engraving'] : 'none'));
+        error_log('Cover Text: ' . (isset($cart_item_data['cover_engraving']) ? $cart_item_data['cover_engraving'] : 'none'));
+        error_log('============================');
         
         $cart_item_data['bat_additional_price'] = $additional_price;
         $cart_item_data['bat_base_price'] = $base_price;
