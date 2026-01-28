@@ -43,6 +43,18 @@ function bat_customizer_product_data_fields() {
             ?>
         </div>
 
+         <div class="options_group" style="border-bottom:2px solid #f1f1f1; padding-bottom:15px; margin-bottom:25px;">
+            <h3 style="font-size:15px; font-weight:600; margin-bottom:10px;">Weight Selection (Optional)</h3>
+            <?php
+            woocommerce_wp_checkbox(array(
+                'id'          => '_enable_weight_selection',
+                'label'       => __('Enable Weight Selection', 'woocommerce'),
+                'description' => __('Allow customers to specify desired bat weight range', 'woocommerce'),
+                'desc_tip'    => true,
+            ));
+            ?>
+        </div>
+
         <?php
         $repeaters = array(
             'handle_shape' => array(
@@ -747,6 +759,8 @@ function save_display_sections($post_id) {
         '_laser_engraving_image',
         '_laser_engraving_price',
         '_laser_engraving_max_chars',
+        // Weight Selection
+        '_enable_weight_selection',
         // Cover Engraving
         '_enable_cover_engraving',
         '_cover_engraving_image',
@@ -903,6 +917,31 @@ echo '<button type="button" class="toggle-btn no-btn ' . (!$is_enabled ? 'active
 echo '</div>';
 echo '<input type="hidden" id="deep-customisation" value="' . ($is_enabled ? 'yes' : 'no') . '">';
 echo '</div>';
+
+// Weight Selection Section
+$enable_weight = get_post_meta($product_id, '_enable_weight_selection', true);
+if ($enable_weight === 'yes') {
+    echo '<div class="weight-selection-section" style="margin-bottom:20px; padding:20px; border-radius:8px; background:#f9f9f9; ' . ($is_enabled ? '' : 'display:none;') . '">';
+    echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:15px; color:#333;">Weight Selection (Optional)</h3>';
+    echo '<div style="display:flex; align-items:center; gap:15px; flex-wrap:wrap;">';
+    
+    echo '<div style="flex:1; min-width:120px;">';
+    echo '<label style="display:block; margin-bottom:8px; font-weight:600; color:#555;">From (grams)</label>';
+    echo '<input type="number" id="weight-from" name="weight_from" placeholder="e.g. 1125" step="25" min="0" style="width:100%; padding:10px; border:2px solid #ddd; border-radius:6px; font-size:14px;">';
+    echo '</div>';
+    
+    echo '<span style="font-size:20px; color:#999; margin-top:25px;">/</span>';
+    
+    echo '<div style="flex:1; min-width:120px;">';
+    echo '<label style="display:block; margin-bottom:8px; font-weight:600; color:#555;">To (grams)</label>';
+    echo '<input type="number" id="weight-to" name="weight_to" placeholder="e.g. 1150" step="25" min="0" style="width:100%; padding:10px; border:2px solid #ddd; border-radius:6px; font-size:14px;" readonly>';
+    echo '</div>';
+    
+    echo '</div>';
+    echo '<div id="weight-error" style="color:#f44336; font-size:13px; margin-top:8px; display:none;">Weight range must be exactly 25 grams</div>';
+    echo '<div style="font-size:12px; color:#666; margin-top:10px; font-style:italic;">💡 Enter starting weight, ending weight will auto-calculate (+25g)</div>';
+    echo '</div>';
+}
 
 
         foreach ($sections as $key => $title) {
@@ -1115,6 +1154,30 @@ $('.clear-section-btn').on('click', function() {
     updateTotals();
 });
 
+ $('#weight-from').on('input', function() {
+            var fromWeight = parseInt($(this).val());
+            var $toField = $('#weight-to');
+            var $error = $('#weight-error');
+            
+            if (fromWeight && !isNaN(fromWeight)) {
+                // Auto-calculate To weight (From + 25)
+                var toWeight = fromWeight + 25;
+                $toField.val(toWeight);
+                $error.hide();
+            } else {
+                $toField.val('');
+                $error.hide();
+            }
+        });
+        
+        // Validate on blur
+        $('#weight-from').on('blur', function() {
+            var fromWeight = parseInt($(this).val());
+            if (fromWeight && fromWeight % 25 !== 0) {
+                $('#weight-error').text('Weight must be in multiples of 25 grams').show();
+            }
+        });
+
 
 
 // Intercept Add to Cart button to include deep customization value
@@ -1130,9 +1193,22 @@ $('form.cart').on('submit', function(e) {
     $form.find('input[name="deep_customisation"]').remove();
     $form.find('input[name="laser_engraving_text"]').remove();
     $form.find('input[name="cover_engraving_text"]').remove();
+    $form.find('input[name="weight_from"]').remove();
+    $form.find('input[name="weight_to"]').remove();
     
     // Add deep customization toggle
     $form.append('<input type="hidden" name="deep_customisation" value="' + deepCustomValue + '">');
+    
+    // Add weight selection if filled
+    var weightFrom = $('#weight-from').val();
+    var weightTo = $('#weight-to').val();
+    if (weightFrom && weightTo) {
+        var weightDiff = parseInt(weightTo) - parseInt(weightFrom);
+        if (weightDiff === 25) {
+            $form.append('<input type="hidden" name="weight_from" value="' + weightFrom + '">');
+            $form.append('<input type="hidden" name="weight_to" value="' + weightTo + '">');
+        }
+    }
     
     // Only add customizer options if deep customization is enabled
     if (deepCustomValue === 'yes') {
@@ -1169,7 +1245,7 @@ $('form.cart').on('submit', function(e) {
 
   var isYes = ($(this).data('value') === 'yes');
 
-  if (isYes) {
+ if (isYes) {
     $('.yes-btn').css({'background':'#0066ff','color':'#fff'});
     $('.no-btn').css({'background':'#e0e0e0','color':'#666'});
     $('#deep-customisation').val('yes');
@@ -1177,6 +1253,7 @@ $('form.cart').on('submit', function(e) {
     // SHOW UI
     $('.customizer-section').show();
      $('.engraving-section').show();
+    $('.weight-selection-section').show();
     $('#customizer-totals').show();
 
   } else {
@@ -1187,11 +1264,13 @@ $('form.cart').on('submit', function(e) {
     // HIDE UI + reset
     $('.customizer-section').hide();
     $('#customizer-totals').hide();
-    $('.customizer-section .selected').removeClass('selected');
     $('.clear-section-btn').hide();
-    $('.engraving-section').hide(); // Hide engraving sections
+    $('.engraving-section').hide();
+    $('.weight-selection-section').hide();
      $('#laser-engraving-input').val('');
     $('#cover-engraving-input').val('');
+    $('#weight-from').val('');
+    $('#weight-to').val('');
     $('#laser-text-overlay').text('');
     $('#cover-text-overlay').text('');
     $('#laser-char-counter').text('0 / ' + $('#laser-engraving-input').attr('maxlength'));
@@ -1223,9 +1302,11 @@ $('form.cart').on('submit', function(e) {
 var initialState = $('#deep-customisation').val();
 if (initialState === 'no') {
     $('.customizer-section').hide();
+    $('.weight-selection-section').hide();
     $('#customizer-totals').hide();
 } else {
     $('.customizer-section').show();
+    $('.weight-selection-section').show();
     $('#customizer-totals').show();
 }
 // Laser Engraving Live Preview
@@ -1286,6 +1367,17 @@ function add_bat_customizer_to_cart($cart_item_data, $product_id, $variation_id)
     
     $deep_custom = isset($_POST['deep_customisation']) ? sanitize_text_field($_POST['deep_customisation']) : 'no';
     $cart_item_data['deep_customisation'] = $deep_custom;
+    
+    // Handle weight selection
+    if (isset($_POST['weight_from']) && isset($_POST['weight_to'])) {
+        $weight_from = intval($_POST['weight_from']);
+        $weight_to = intval($_POST['weight_to']);
+        
+        // Validate 25g difference
+        if (($weight_to - $weight_from) === 25) {
+            $cart_item_data['weight_range'] = $weight_from . ' / ' . $weight_to . ' grams';
+        }
+    }
     
     $sections = array('handle_shape', 'handle_thickness', 'handle_type', 'sweet_spot', 'toe_shape', 'oiling_knocking', 'anti_scuff_sheet', 'toe_guard', 'extra_grips');
     $custom_data = array();
@@ -1372,6 +1464,10 @@ function get_bat_customizer_from_session($cart_item, $values, $cart_item_key) {
         $cart_item['cover_engraving'] = $values['cover_engraving'];
     }
     
+    if (isset($values['weight_range'])) {
+        $cart_item['weight_range'] = $values['weight_range'];
+    }
+
     // IMPORTANT: Restore price data
     if (isset($values['bat_additional_price'])) {
         $cart_item['bat_additional_price'] = $values['bat_additional_price'];
@@ -1438,6 +1534,10 @@ function display_bat_customizer_in_cart($item_name, $cart_item, $cart_item_key) 
             $item_name .= '<dt><strong>Cover Customization:</strong></dt><dd style="margin:0 0 5px 0;">' . esc_html($cart_item['cover_engraving']) . '</dd>';
         }
 
+        if (isset($cart_item['weight_range'])) {
+            $item_name .= '<dt><strong>Desired Weight:</strong></dt><dd style="margin:0 0 5px 0;">' . esc_html($cart_item['weight_range']) . '</dd>';
+        }
+
         if (isset($cart_item['bat_customizer']) && !empty($cart_item['bat_customizer'])) {
             foreach ($cart_item['bat_customizer'] as $key => $value) {
                 $item_name .= '<dt><strong>' . ucwords(str_replace('_', ' ', $key)) . ':</strong></dt><dd style="margin:0 0 5px 0;">' . esc_html($value) . '</dd>';
@@ -1467,6 +1567,10 @@ function save_bat_customizer_to_order($item, $cart_item_key, $values, $order) {
     
     if (isset($values['cover_engraving'])) {
         $item->add_meta_data('Cover Customization', $values['cover_engraving'], true);
+    }
+
+     if (isset($values['weight_range'])) {
+        $item->add_meta_data('Desired Weight', $values['weight_range'], true);
     }
     
     // Save price breakdown
@@ -1521,6 +1625,15 @@ function bat_customizer_css() {
 }
 #deep-customisation {
     accent-color: #0066ff;
+}
+.weight-selection-section {
+    transition: all 0.3s ease;
+}
+
+.weight-selection-section input[type="number"]:focus {
+    border-color: #0066ff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0,102,255,0.1);
 }
  .customizer-section {
     margin-bottom: 20px !important;
