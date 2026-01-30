@@ -44,7 +44,7 @@ function bat_customizer_product_data_fields() {
         </div>
 
          <div class="options_group" style="border-bottom:2px solid #f1f1f1; padding-bottom:15px; margin-bottom:25px;">
-            <h3 style="font-size:15px; font-weight:600; margin-bottom:10px;">Weight Selection (Optional)</h3>
+            <h3 style="font-size:15px; font-weight:600; margin-bottom:10px;">Weight Selection </h3>
             <?php
             woocommerce_wp_checkbox(array(
                 'id'          => '_enable_weight_selection',
@@ -922,7 +922,7 @@ echo '</div>';
 $enable_weight = get_post_meta($product_id, '_enable_weight_selection', true);
 if ($enable_weight === 'yes') {
     echo '<div class="weight-selection-section" style="margin-bottom:20px; padding:20px; border-radius:8px; background:#f9f9f9; ' . ($is_enabled ? '' : 'display:none;') . '">';
-    echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:15px; color:#333;">Weight Selection (Optional)</h3>';
+    echo '<h3 style="font-size:18px; font-weight:600; margin-bottom:15px; color:#333;">Weight Selection </h3>';
     echo '<div style="display:flex; align-items:center; gap:15px; flex-wrap:wrap;">';
     
     echo '<div style="flex:1; min-width:120px;">';
@@ -1606,189 +1606,608 @@ function display_bat_customizer_in_order($item_name, $item) {
 }
 
 // CSS
+// CSS
 add_action('wp_head', 'bat_customizer_css');
 function bat_customizer_css() {
     if (!is_product()) return;
     ?>
     <style>
+        /* ============================================
+           MAIN CONTAINER
+           ============================================ */
         #bat-customizer {
-            margin-top: 20px;
-            background: #fff;
+            margin: 30px 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
         }
+
+        /* ============================================
+           DEEP CUSTOMISATION TOGGLE
+           ============================================ */
         .deep-customisation-toggle {
-    margin-bottom: 20px;
-    transition: all 0.3s ease;
-}
-
-.deep-customisation-toggle label {
-    user-select: none;
-}
-#deep-customisation {
-    accent-color: #0066ff;
-}
-.weight-selection-section {
-    transition: all 0.3s ease;
-}
-
-.weight-selection-section input[type="number"]:focus {
-    border-color: #0066ff;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(0,102,255,0.1);
-}
- .customizer-section {
-    margin-bottom: 20px !important;
-}
-
-.customizer-section:has(.engraving-section) {
-    margin-bottom: 0;
-}
-
-.engraving-section {
-    margin-bottom: 10px !important;
-}
-
-        .customizer-section h3 {
-            font-size: 18px;
-            margin-bottom: 10px;
+            margin-bottom: 30px;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
         }
-        .options {
+
+        .deep-customisation-toggle:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .deep-customisation-toggle h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+            letter-spacing: -0.5px;
+        }
+
+        .toggle-buttons {
             display: flex;
-            flex-wrap: wrap;
+            gap: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .toggle-btn {
+            padding: 12px 40px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .toggle-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .toggle-btn:hover::before {
+            left: 100%;
+        }
+
+        .yes-btn {
+            border-radius: 8px 0 0 8px;
+        }
+
+        .no-btn {
+            border-radius: 0 8px 8px 0;
+        }
+
+        .toggle-btn.active {
+            transform: scale(1.05);
+        }
+
+        /* ============================================
+           WEIGHT SELECTION
+           ============================================ */
+        .weight-selection-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #0066ff;
+            transition: all 0.3s ease;
+        }
+
+        .weight-selection-section:hover {
+            box-shadow: 0 6px 20px rgba(0, 102, 255, 0.15);
+            transform: translateX(5px);
+        }
+
+        .weight-selection-section h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
             gap: 10px;
         }
+
+        .weight-selection-section h3::before {
+            content: '⚖️';
+            font-size: 24px;
+        }
+
+        .weight-selection-section input[type="number"] {
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .weight-selection-section input[type="number"]:focus {
+            border-color: #0066ff;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.15);
+            transform: scale(1.02);
+        }
+
+        .weight-selection-section input[type="number"]:hover {
+            border-color: #3399ff;
+        }
+
+        #weight-error {
+            background: #fff3cd;
+            padding: 10px 15px;
+            border-radius: 6px;
+            border-left: 3px solid #ffc107;
+            font-weight: 500;
+        }
+
+        /* ============================================
+           CUSTOMIZER SECTIONS
+           ============================================ */
+        .customizer-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .customizer-section:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            border-left-color: #0066ff;
+        }
+
+        .customizer-section h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .customizer-section h3::before {
+            content: '🏏';
+            font-size: 24px;
+        }
+
+        /* ============================================
+           OPTIONS GRID
+           ============================================ */
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+        }
+
+        /* TEXT OPTIONS */
         .text-option {
-    padding: 10px 20px;
-    border: 1px solid #ddd;
-    cursor: pointer;
-    text-align: center;
-    border-radius: 4px;
-    transition: all 0.3s;
-    background: white;
-    min-width: 120px;
-    font-size: 14px;
-}
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            cursor: pointer;
+            text-align: center;
+            border-radius: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            font-size: 14px;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
 
-.text-option:hover {
-    border-color: #0066ff;
-    background: #f8f9fa;
-    transform: translateY(-2px);
-    box-shadow: 0 2px 8px rgba(0,102,255,0.1);
-}
+        .text-option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 102, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
 
-.image-option:hover {
-    border-color: #0066ff;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,102,255,0.15);
-}
+        .text-option:hover {
+            border-color: #0066ff;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.2);
+        }
 
-.image-option {
-    padding: 15px;
-    border: 2px solid #ddd;
-    cursor: pointer;
-    text-align: center;
-    border-radius: 8px;
-    transition: all 0.3s;
-    position: relative;
-    overflow: hidden;
-    background: white;
-    flex-direction: column;
-    display: flex;
-    align-items: center;
-    min-width: 140px;
-}
+        .text-option:hover::before {
+            left: 100%;
+        }
+
         .text-option.selected {
-    border: 2px solid #0066ff;
-    background: #f0f7ff;
-    color: #0066ff;
-    font-weight: 600;
-}
-.image-option.selected {
-    border: 3px solid #0066ff;
-    box-shadow: 0 0 10px rgba(0,102,255,0.2);
-}
+            border: 2px solid #0066ff;
+            background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+            color: white;
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 12px 28px rgba(0, 102, 255, 0.35);
+        }
+
+        .text-option.selected .price {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* IMAGE OPTIONS */
+        .image-option {
+            padding: 20px;
+            border: 2px solid #e9ecef;
+            cursor: pointer;
+            text-align: center;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .image-option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.1) 0%, rgba(0, 82, 204, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .image-option:hover {
+            border-color: #0066ff;
+            transform: translateY(-8px);
+            box-shadow: 0 12px 32px rgba(0, 102, 255, 0.25);
+        }
+
+        .image-option:hover::before {
+            opacity: 1;
+        }
+
+        .image-option.selected {
+            border: 3px solid #0066ff;
+            background: linear-gradient(135deg, #f0f7ff 0%, #e6f2ff 100%);
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 16px 40px rgba(0, 102, 255, 0.35);
+        }
+
         .image-option.selected::after {
             content: "✓";
             position: absolute;
-            top: 8px;
-            right: 8px;
-            background: #0066ff;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
             color: white;
-            width: 24px;
-            height: 24px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
-            font-size: 16px;
-            line-height: 24px;
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 32px;
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.4);
+            animation: checkmark 0.3s ease-in-out;
         }
+
+        @keyframes checkmark {
+            0% { transform: scale(0) rotate(-45deg); }
+            50% { transform: scale(1.2) rotate(10deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
         .image-option img {
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 50%;
-    margin-bottom: 10px;
-}
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid #e9ecef;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .image-option:hover img {
+            border-color: #0066ff;
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .image-option.selected img {
+            border-color: #0066ff;
+            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.3);
+        }
+
+        .image-option .label {
+            font-weight: 700;
+            font-size: 14px;
+            color: #1a1a1a;
+            position: relative;
+            z-index: 1;
+        }
+
         .price {
-    color: #666;
-    font-size: 13px;
-    margin-top: 5px;
-    display: block;
-}
-.image-option .label {
-    font-weight: 600;
-    font-size: 14px;
-    margin-bottom: 5px;
-}
-        .totals p {
-            font-size: 16px;
-        }
-        .faqs .faq-item {
-            margin-bottom: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-        .faqs h3 {
-            cursor: pointer;
-        }
-        .faqs .faq-item p {
-            display: none;
-        }
-        .faqs .faq-item.active p {
+            color: #666;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 5px;
             display: block;
+            position: relative;
+            z-index: 1;
         }
-        .grid-section {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
+
+        /* ============================================
+           CLEAR BUTTON
+           ============================================ */
+        .clear-section-btn {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+        }
+
+        .clear-section-btn:hover {
+            background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(244, 67, 54, 0.4);
+        }
+
+        .clear-section-btn:active {
+            transform: translateY(0);
+        }
+
+        /* ============================================
+           ENGRAVING SECTIONS
+           ============================================ */
+        .engraving-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 20px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #FF9800;
+            transition: all 0.3s ease;
+        }
+
+        .engraving-section:hover {
+            box-shadow: 0 8px 28px rgba(255, 152, 0, 0.2);
+            transform: translateX(5px);
+        }
+
+        .engraving-section h3 {
+            color: #1a1a1a;
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
             gap: 10px;
         }
-        .grid-item img {
-            width: 100%;
+
+        .laser-engraving-section h3::before {
+            content: '⚡';
+            font-size: 24px;
         }
-        .edition-section, .grain-section, .below-hero, .bat-matters {
-            margin: 20px 0;
-            padding: 20px;
-            background: #f9f9f9;
+
+        .cover-engraving-section h3::before {
+            content: '🎨';
+            font-size: 24px;
         }
+
+        .engraving-section input[type="text"] {
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .engraving-section input[type="text"]:focus {
+            border-color: #FF9800;
+            box-shadow: 0 0 0 4px rgba(255, 152, 0, 0.15);
+            transform: scale(1.02);
+        }
+
+        /* ============================================
+           TOTALS SECTION
+           ============================================ */
+        .totals {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e9ecef;
+        }
+
+        .totals > div {
+            font-size: 16px;
+            padding: 12px 0;
+            transition: all 0.3s ease;
+        }
+
+        .totals > div:hover {
+            transform: translateX(5px);
+        }
+
+        .totals > div:last-child {
+            margin-top: 15px;
+            padding-top: 20px;
+            border-top: 2px solid #dee2e6;
+            font-size: 22px;
+        }
+
+        #grand-total {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ============================================
+           CART DISPLAY
+           ============================================ */
+        .bat-customizer-data {
+            margin: 15px 0;
+            padding: 15px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-left: 4px solid #0066ff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .bat-customizer-data dt {
+            font-weight: 700;
+            margin-top: 8px;
+            color: #1a1a1a;
+            font-size: 14px;
+        }
+
+        .bat-customizer-data dd {
+            margin: 5px 0 10px 20px;
+            color: #495057;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* ============================================
+           RESPONSIVE DESIGN
+           ============================================ */
         @media (max-width: 768px) {
-            .grid-section {
+            #bat-customizer {
+                padding: 20px;
+                margin: 20px 0;
+            }
+
+            .deep-customisation-toggle,
+            .weight-selection-section,
+            .customizer-section,
+            .engraving-section {
+                padding: 20px;
+            }
+
+            .options {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 10px;
+            }
+
+            .toggle-btn {
+                padding: 10px 25px;
+                font-size: 14px;
+            }
+
+            .customizer-section h3,
+            .weight-selection-section h3,
+            .engraving-section h3 {
+                font-size: 18px;
+            }
+
+            #grand-total {
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .options {
                 grid-template-columns: 1fr;
             }
-            .options {
+
+            .toggle-buttons {
                 flex-direction: column;
             }
+
+            .yes-btn,
+            .no-btn {
+                border-radius: 8px;
+            }
+
+            .toggle-btn {
+                width: 100%;
+            }
         }
-        .bat-customizer-data {
-    margin: 10px 0;
-    padding: 10px;
-    background: #f9f9f9;
-    border-left: 3px solid #0066ff;
-}
-.bat-customizer-data dt {
-    font-weight: 600;
-    margin-top: 5px;
-    color: #333;
-}
-.bat-customizer-data dd {
-    margin: 0 0 8px 15px;
-    color: #666;
-}
+
+        /* ============================================
+           ANIMATIONS
+           ============================================ */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .customizer-section,
+        .weight-selection-section,
+        .engraving-section {
+            animation: fadeInUp 0.4s ease-out;
+        }
+
+        /* ============================================
+           DARK MODE SUPPORT (Optional)
+           ============================================ */
+        @media (prefers-color-scheme: dark) {
+            #bat-customizer {
+                background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            }
+
+            .deep-customisation-toggle,
+            .weight-selection-section,
+            .customizer-section,
+            .engraving-section,
+            .totals {
+                background: #2d3748;
+                border-color: #4a5568;
+            }
+
+            .deep-customisation-toggle h3,
+            .weight-selection-section h3,
+            .customizer-section h3,
+            .engraving-section h3 {
+                color: #f7fafc;
+            }
+
+            .text-option,
+            .image-option {
+                background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+                border-color: #4a5568;
+                color: #f7fafc;
+            }
+
+            .bat-customizer-data {
+                background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            }
+
+            .bat-customizer-data dt {
+                color: #f7fafc;
+            }
+
+            .bat-customizer-data dd {
+                color: #cbd5e0;
+            }
+        }
     </style>
     <?php
 }
