@@ -82,10 +82,20 @@ function bat_customizer_product_data_fields() {
                 'icon'  => 'dashicons dashicons-carrot',
                 'fields' => array('image' => 'image', 'label' => 'text', 'price' => 'number'),
             ),
-            'oiling_knocking' => array(
-                'title' => 'Oiling & Knocking',
+            'oiling' => array(
+                'title' => 'Oiling',
                 'icon'  => 'dashicons dashicons-admin-customizer',
                 'fields' => array('label' => 'text', 'price' => 'number', 'description' => 'textarea'),
+            ),
+            'knocking' => array(
+                'title' => 'Knocking',
+                'icon'  => 'dashicons dashicons-hammer',
+                'fields' => array('label' => 'text', 'price' => 'number', 'description' => 'textarea'),
+            ),
+            'threading' => array(
+                'title' => 'Threading',
+                'icon'  => 'dashicons dashicons-yes-alt',
+                'fields' => array('label' => 'text', 'price' => 'number'),
             ),
             'anti_scuff_sheet' => array(
                 'title' => 'Anti-Scuff Sheet',
@@ -436,7 +446,7 @@ $('.repeater').each(function() {
 
 // Sanitize and save repeaters
 function bat_sanitize_and_save_repeaters($post_id) {
-    $repeaters = array('handle_shape','handle_thickness','handle_type','sweet_spot','toe_shape','oiling_knocking','anti_scuff_sheet','toe_guard','extra_grips','grid_section','faqs');
+    $repeaters = array('handle_shape','handle_thickness','handle_type','sweet_spot','toe_shape','oiling','knocking','threading','anti_scuff_sheet','toe_guard','extra_grips','grid_section','faqs');
 
     foreach ($repeaters as $key) {
         if (empty($_POST[$key]) || !is_array($_POST[$key])) {
@@ -894,16 +904,18 @@ function render_bat_customizer($force = false) {
     if (!$force && get_post_meta($product_id, '_deep_customisation', true) !== 'yes') return;
 
     $sections = array(
-        'handle_shape' => 'Handle Shape',
-        'handle_thickness' => 'Handle Thickness',
-        'handle_type' => 'Handle Type',
-        'sweet_spot' => 'Sweet Spot',
-        'toe_shape' => 'Toe Shape',
-        'oiling_knocking' => 'Oiling & Knocking',
-        'anti_scuff_sheet' => 'Anti-Scuff Sheet',
-        'toe_guard' => 'Toe Guard',
-        'extra_grips' => 'Extra Grips',
-    );
+    'handle_shape' => 'Handle Shape',
+    'handle_thickness' => 'Handle Thickness',
+    'handle_type' => 'Handle Type',
+    'sweet_spot' => 'Sweet Spot',
+    'toe_shape' => 'Toe Shape',
+    'oiling' => 'Oiling',
+    'knocking' => 'Knocking',
+    'threading' => 'Threading',
+    'anti_scuff_sheet' => 'Anti-Scuff Sheet',
+    'toe_guard' => 'Toe Guard',
+    'extra_grips' => 'Extra Grips',
+);
 $deep_custom_enabled = get_post_meta($product_id, '_deep_customisation', true);
 $is_enabled = ($deep_custom_enabled === 'yes');
 
@@ -1379,7 +1391,7 @@ function add_bat_customizer_to_cart($cart_item_data, $product_id, $variation_id)
         }
     }
     
-    $sections = array('handle_shape', 'handle_thickness', 'handle_type', 'sweet_spot', 'toe_shape', 'oiling_knocking', 'anti_scuff_sheet', 'toe_guard', 'extra_grips');
+    $sections = array('handle_shape', 'handle_thickness', 'handle_type', 'sweet_spot', 'toe_shape', 'oiling', 'knocking', 'threading', 'anti_scuff_sheet', 'toe_guard', 'extra_grips');
     $custom_data = array();
     $additional_price = 0;
 
