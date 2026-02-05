@@ -493,6 +493,59 @@ function save_bat_customizer_product_data($post_id) {
     
     // Verify user capabilities
     if (!current_user_can('edit_product', $post_id)) return;
+    // === ADD THIS ENTIRE BLOCK HERE ===
+    
+    // Set default options if they don't exist
+    $default_options = array(
+        'handle_shape' => array(
+            array('label' => 'Round Handle', 'price' => 0),
+            array('label' => 'Semi-Oval Handle', 'price' => 0),
+            array('label' => 'Oval Handle', 'price' => 0),
+        ),
+        'handle_thickness' => array(
+            array('label' => 'Thin', 'price' => 0),
+            array('label' => 'Medium', 'price' => 0),
+            array('label' => 'Thick', 'price' => 0),
+        ),
+        'handle_type' => array(
+            array('label' => '4 Piece', 'price' => 0),
+        ),
+        'toe_shape' => array(
+            array('label' => 'Semi-Concave Toe', 'price' => 0),
+            array('label' => 'Square Toe', 'price' => 0),
+            array('label' => 'Round Toe', 'price' => 0),
+        ),
+        'oiling' => array(
+            array('label' => 'Yes', 'price' => 199, 'description' => 'Professional bat oiling'),
+            array('label' => 'No', 'price' => 0),
+        ),
+        'knocking' => array(
+            array('label' => 'Yes', 'price' => 750, 'description' => 'Professional bat knocking'),
+            array('label' => 'No', 'price' => 0),
+        ),
+        'threading' => array(
+            array('label' => 'Yes', 'price' => 120),
+            array('label' => 'No', 'price' => 0),
+        ),
+        'toe_guard' => array(
+            array('label' => 'Yes', 'price' => 249),
+            array('label' => 'No', 'price' => 0),
+        ),
+        'extra_grips' => array(
+            array('label' => 'Yes', 'price' => 99),
+            array('label' => 'No', 'price' => 0),
+        ),
+    );
+
+    // Only set defaults if the option doesn't exist yet
+    foreach ($default_options as $key => $default_value) {
+        $existing = get_post_meta($post_id, '_' . $key, true);
+        if (empty($existing)) {
+            update_post_meta($post_id, '_' . $key, $default_value);
+        }
+    }
+    
+    // === END OF BLOCK ===
 
 
 
@@ -694,7 +747,7 @@ echo '</p>';
         'label' => __('Laser Engraving Price (' . get_woocommerce_currency_symbol() . ')', 'woocommerce'),
         'type' => 'number',
         'custom_attributes' => array('step' => '0.01', 'min' => '0'),
-        'value' => get_post_meta($post->ID, '_laser_engraving_price', true) ?: '5.49',
+        'value' => get_post_meta($post->ID, '_laser_engraving_price', true) ?: '350',
     ));
     
     woocommerce_wp_text_input(array(
