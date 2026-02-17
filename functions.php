@@ -481,6 +481,78 @@ function bat_sanitize_and_save_repeaters($post_id) {
 }
 
 // Save custom fields
+
+// Set defaults immediately when a new product is created
+add_action('wp_insert_post', 'bat_set_defaults_on_product_creation', 10, 3);
+function bat_set_defaults_on_product_creation($post_id, $post, $update) {
+    // Only for new products (not updates)
+    if ($update) {
+        return;
+    }
+    
+    // Only for products
+    if ($post->post_type !== 'product') {
+        return;
+    }
+    
+    // Check if already initialized
+    if (get_post_meta($post_id, '_bat_customizer_initialized', true) === 'yes') {
+        return;
+    }
+    
+    // Set default options
+    $default_options = array(
+        'handle_shape' => array(
+            array('label' => 'Round Handle', 'price' => 0),
+            array('label' => 'Semi-Oval Handle', 'price' => 0),
+            array('label' => 'Oval Handle', 'price' => 0),
+        ),
+        'handle_thickness' => array(
+            array('label' => 'Thin', 'price' => 0),
+            array('label' => 'Medium', 'price' => 0),
+            array('label' => 'Thick', 'price' => 0),
+        ),
+        'handle_type' => array(
+            array('label' => '4 Piece', 'price' => 0),
+        ),
+        'toe_shape' => array(
+            array('label' => 'Semi-Concave Toe', 'price' => 0),
+            array('label' => 'Square Toe', 'price' => 0),
+            array('label' => 'Round Toe', 'price' => 0),
+        ),
+        'oiling' => array(
+            array('label' => 'Yes', 'price' => 199, 'description' => 'Professional bat oiling'),
+            array('label' => 'No', 'price' => 0, 'description' => ''),
+        ),
+        'knocking' => array(
+            array('label' => 'Yes', 'price' => 750, 'description' => 'Professional bat knocking'),
+            array('label' => 'No', 'price' => 0, 'description' => ''),
+        ),
+        'threading' => array(
+            array('label' => 'Yes', 'price' => 120),
+            array('label' => 'No', 'price' => 0),
+        ),
+        'toe_guard' => array(
+            array('label' => 'Yes', 'price' => 249.99),
+            array('label' => 'No', 'price' => 0),
+        ),
+        'extra_grips' => array(
+            array('label' => 'Yes', 'price' => 98.98),
+            array('label' => 'No', 'price' => 0),
+        ),
+    );
+
+    // Set all default options
+    foreach ($default_options as $key => $default_value) {
+        update_post_meta($post_id, '_' . $key, $default_value);
+    }
+    
+    // Enable Weight Selection by default
+    update_post_meta($post_id, '_enable_weight_selection', 'yes');
+    
+    // Mark as initialized
+    update_post_meta($post_id, '_bat_customizer_initialized', 'yes');
+}
 // Save custom fields
 add_action('woocommerce_process_product_meta', 'save_bat_customizer_product_data');
 function save_bat_customizer_product_data($post_id) {
@@ -494,66 +566,8 @@ function save_bat_customizer_product_data($post_id) {
     
     // Verify user capabilities
     if (!current_user_can('edit_product', $post_id)) return;
-    
-    // Check if this is a NEW product (never saved before)
-    $is_new_product = (get_post_meta($post_id, '_bat_customizer_initialized', true) !== 'yes');
-    
-    if ($is_new_product) {
-        // Set default options for NEW products only
-        $default_options = array(
-            'handle_shape' => array(
-                array('label' => 'Round Handle', 'price' => 0),
-                array('label' => 'Semi-Oval Handle', 'price' => 0),
-                array('label' => 'Oval Handle', 'price' => 0),
-            ),
-            'handle_thickness' => array(
-                array('label' => 'Thin', 'price' => 0),
-                array('label' => 'Medium', 'price' => 0),
-                array('label' => 'Thick', 'price' => 0),
-            ),
-            'handle_type' => array(
-                array('label' => '4 Piece', 'price' => 0),
-            ),
-            'toe_shape' => array(
-                array('label' => 'Semi-Concave Toe', 'price' => 0),
-                array('label' => 'Square Toe', 'price' => 0),
-                array('label' => 'Round Toe', 'price' => 0),
-            ),
-            'oiling' => array(
-                array('label' => 'Yes', 'price' => 199, 'description' => 'Professional bat oiling'),
-                array('label' => 'No', 'price' => 0, 'description' => ''),
-            ),
-            'knocking' => array(
-                array('label' => 'Yes', 'price' => 750, 'description' => 'Professional bat knocking'),
-                array('label' => 'No', 'price' => 0, 'description' => ''),
-            ),
-            'threading' => array(
-                array('label' => 'Yes', 'price' => 120),
-                array('label' => 'No', 'price' => 0),
-            ),
-            'toe_guard' => array(
-                array('label' => 'Yes', 'price' => 249.99),
-                array('label' => 'No', 'price' => 0),
-            ),
-            'extra_grips' => array(
-                array('label' => 'Yes', 'price' => 98.98),
-                array('label' => 'No', 'price' => 0),
-            ),
-        );
 
-        // Set all default options
-        foreach ($default_options as $key => $default_value) {
-            update_post_meta($post_id, '_' . $key, $default_value);
-        }
-        
-        // Enable Weight Selection by default for new products
-        update_post_meta($post_id, '_enable_weight_selection', 'yes');
-        
-        // Mark as initialized so defaults won't be set again
-        update_post_meta($post_id, '_bat_customizer_initialized', 'yes');
-    }
-
-    // Always save the current form data (whether new or existing product)
+    // Save form data
     update_post_meta($post_id, '_deep_customisation', isset($_POST['_deep_customisation']) ? 'yes' : 'no');
     update_post_meta($post_id, '_enable_weight_selection', isset($_POST['_enable_weight_selection']) ? 'yes' : 'no');
     
