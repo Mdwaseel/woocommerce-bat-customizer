@@ -480,7 +480,27 @@ function bat_sanitize_and_save_repeaters($post_id) {
     }
 }
 
-// Save custom fields
+function bat_get_or_import_image($url) {
+    global $wpdb;
+    $existing = $wpdb->get_var($wpdb->prepare(
+        "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_bat_source_url' AND meta_value = %s",
+        $url
+    ));
+    if ($existing) return intval($existing);
+
+    require_once ABSPATH . 'wp-admin/includes/media.php';
+    require_once ABSPATH . 'wp-admin/includes/file.php';
+    require_once ABSPATH . 'wp-admin/includes/image.php';
+
+    $id = media_sideload_image($url, 0, '', 'id');
+    if (!is_wp_error($id)) {
+        update_post_meta($id, '_bat_source_url', $url);
+        return $id;
+    }
+    return 0;
+}
+
+add_action('wp_insert_post', 'bat_set_defaults_on_product_creation', 10, 3);
 
 // Set defaults immediately when a new product is created
 add_action('wp_insert_post', 'bat_set_defaults_on_product_creation', 10, 3);
@@ -513,12 +533,12 @@ function bat_set_defaults_on_product_creation($post_id, $post, $update) {
             array('label' => 'Thick', 'price' => 0),
         ),
         'handle_type' => array(
-            array('label' => '4 Piece', 'price' => 0),
+            array('label' => '4 Piece', 'price' => 0, 'image' => bat_get_or_import_image('https://gladiatorcricket.in/wp-content/uploads/2025/12/Anglar-4-piece-handle.webp')),
         ),
         'toe_shape' => array(
-            array('label' => 'Semi-Concave Toe', 'price' => 0),
-            array('label' => 'Square Toe', 'price' => 0),
-            array('label' => 'Round Toe', 'price' => 0),
+            array('label' => 'Semi-Concave Toe', 'price' => 0, 'image' => bat_get_or_import_image('https://gladiatorcricket.in/wp-content/uploads/2025/12/Anglar-Semi-Concaved-Toe.jpg')),
+            array('label' => 'Square Toe', 'price' => 0, 'image' => bat_get_or_import_image('https://gladiatorcricket.in/wp-content/uploads/2025/12/Anglar-Square-Toe.jpg')),
+            array('label' => 'Round Toe', 'price' => 0, 'image' => bat_get_or_import_image('https://gladiatorcricket.in/wp-content/uploads/2025/12/Anglar-Full-Round-Toe-1.jpg')),
         ),
         'oiling' => array(
             array('label' => 'Yes', 'price' => 199, 'description' => 'Professional bat oiling'),
